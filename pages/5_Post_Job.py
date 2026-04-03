@@ -142,8 +142,10 @@ with col_preview:
 # HANDLE POST
 # ════════════════════════════════════════════════
 if post_clicked:
-    if not title or not company or not req_skills:
+    if not title or not company.strip() or not req_skills:
         st.error("Please fill in Role, Company, and at least one Required Skill.")
+    elif len(description.strip()) < 20:
+        st.error("Please add a richer job description (minimum 20 characters).")
     else:
         with st.spinner("⛓️ Posting job to Polygon Amoy..."):
             import time; time.sleep(0.9)

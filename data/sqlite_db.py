@@ -10,6 +10,12 @@ def get_connection():
     return sqlite3.connect(DB_PATH)
 
 
+def _ensure_column(conn, table: str, column: str, definition: str):
+    cols = pd.read_sql(f"PRAGMA table_info({table})", conn)["name"].tolist()
+    if column not in cols:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
+
+
 def init_db():
     conn = get_connection()
     conn.execute("""
@@ -45,6 +51,76 @@ def init_db():
             FOREIGN KEY(job_id) REFERENCES jobs(job_id)
         )
     """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS skill_tests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            talent_wallet TEXT,
+            skill TEXT,
+            score REAL,
+            duration_sec INTEGER,
+            taken_date TEXT,
+            FOREIGN KEY(talent_wallet) REFERENCES talents(wallet_address)
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS interviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            job_id INTEGER,
+            talent_wallet TEXT,
+            employer_wallet TEXT,
+            scheduled_at TEXT,
+            mode TEXT,
+            status TEXT DEFAULT 'Scheduled',
+            notes TEXT,
+            created_date TEXT,
+            UNIQUE(job_id, talent_wallet),
+            FOREIGN KEY(talent_wallet) REFERENCES talents(wallet_address),
+            FOREIGN KEY(job_id) REFERENCES jobs(job_id)
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS chat_messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            job_id INTEGER,
+            talent_wallet TEXT,
+            employer_wallet TEXT,
+            sender_role TEXT,
+            message TEXT,
+            sent_at TEXT,
+            FOREIGN KEY(talent_wallet) REFERENCES talents(wallet_address),
+            FOREIGN KEY(job_id) REFERENCES jobs(job_id)
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS hiring_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            job_id INTEGER,
+            talent_wallet TEXT,
+            employer_wallet TEXT,
+            status TEXT DEFAULT 'Ongoing',
+            start_date TEXT,
+            end_date TEXT,
+            fees_paid_usdc REAL DEFAULT 0,
+            rating_by_employer REAL,
+            skills_used TEXT,
+            duration_days INTEGER,
+            notes TEXT,
+            UNIQUE(job_id, talent_wallet),
+            FOREIGN KEY(talent_wallet) REFERENCES talents(wallet_address),
+            FOREIGN KEY(job_id) REFERENCES jobs(job_id)
+        )
+    """)
+
+    # Lightweight migrations for older seeded DBs.
+    _ensure_column(conn, "talents", "skill_test_score", "REAL DEFAULT 0")
+    _ensure_column(conn, "talents", "verified_skills_count", "INTEGER DEFAULT 0")
+    _ensure_column(conn, "talents", "review_score", "REAL DEFAULT 0")
+    _ensure_column(conn, "jobs", "status", "TEXT DEFAULT 'Open'")
+
     conn.commit()
     conn.close()
 
@@ -119,14 +195,17 @@ def upsert_talent(row: dict):
     conn.execute("""
         INSERT OR REPLACE INTO talents
         (wallet_address,name,role,years_exp,location,skills,projects,rating,
-         completion_rate,bio,github,nft_token_id,nft_tx_hash,availability,hourly_rate)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+         completion_rate,bio,github,nft_token_id,nft_tx_hash,availability,hourly_rate,
+         skill_test_score,verified_skills_count,review_score)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     """, (
         row["wallet_address"], row["name"], row["role"], row["years_exp"],
         row["location"], row["skills"], row["projects"], row["rating"],
         row["completion_rate"], row.get("bio",""), row.get("github",""),
         row.get("nft_token_id"), row.get("nft_tx_hash"),
-        row.get("availability","Available"), row.get("hourly_rate", 30)
+        row.get("availability","Available"), row.get("hourly_rate", 30),
+        row.get("skill_test_score", 0), row.get("verified_skills_count", 0),
+        row.get("review_score", 0)
     ))
     conn.commit()
     conn.close()
@@ -178,6 +257,168 @@ def insert_job(row: dict) -> int:
     job_id = cur.lastrowid
     conn.close()
     return job_id
+
+
+def set_application_status(talent_wallet: str, job_id: int, status: str):
+    conn = get_connection()
+    conn.execute(
+        "UPDATE applications SET status=? WHERE talent_wallet=? AND job_id=?",
+        (status, talent_wallet, job_id)
+    )
+    conn.commit()
+    conn.close()
+
+
+def set_job_status(job_id: int, status: str):
+    conn = get_connection()
+    conn.execute("UPDATE jobs SET status=? WHERE job_id=?", (status, job_id))
+    conn.commit()
+    conn.close()
+
+
+def upsert_interview(job_id: int, talent_wallet: str, employer_wallet: str,
+                     scheduled_at: str, mode: str, notes: str = ""):
+    from datetime import date
+    conn = get_connection()
+    conn.execute(
+        """INSERT OR REPLACE INTO interviews
+           (job_id,talent_wallet,employer_wallet,scheduled_at,mode,status,notes,created_date)
+           VALUES (?,?,?,?,?,?,?,?)""",
+        (job_id, talent_wallet, employer_wallet, scheduled_at, mode, "Scheduled", notes, str(date.today()))
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_interview(job_id: int, talent_wallet: str) -> pd.DataFrame:
+    conn = get_connection()
+    df = pd.read_sql(
+        "SELECT * FROM interviews WHERE job_id=? AND talent_wallet=?",
+        conn, params=(job_id, talent_wallet)
+    )
+    conn.close()
+    return df
+
+
+def add_chat_message(job_id: int, talent_wallet: str, employer_wallet: str,
+                     sender_role: str, message: str):
+    from datetime import datetime
+    conn = get_connection()
+    conn.execute(
+        """INSERT INTO chat_messages (job_id,talent_wallet,employer_wallet,sender_role,message,sent_at)
+           VALUES (?,?,?,?,?,?)""",
+        (job_id, talent_wallet, employer_wallet, sender_role, message, datetime.now().strftime("%Y-%m-%d %H:%M"))
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_chat_messages(job_id: int, talent_wallet: str, employer_wallet: str) -> pd.DataFrame:
+    conn = get_connection()
+    df = pd.read_sql(
+        """SELECT * FROM chat_messages
+           WHERE job_id=? AND talent_wallet=? AND employer_wallet=?
+           ORDER BY id ASC""",
+        conn, params=(job_id, talent_wallet, employer_wallet)
+    )
+    conn.close()
+    return df
+
+
+def upsert_hiring_record(job_id: int, talent_wallet: str, employer_wallet: str,
+                         status: str = "Ongoing", fees_paid_usdc: float = 0,
+                         skills_used: str = "", duration_days: int = 0, notes: str = ""):
+    from datetime import date
+    conn = get_connection()
+    existing = pd.read_sql(
+        "SELECT id, start_date FROM hiring_history WHERE job_id=? AND talent_wallet=?",
+        conn, params=(job_id, talent_wallet)
+    )
+    if existing.empty:
+        conn.execute(
+            """INSERT INTO hiring_history
+               (job_id,talent_wallet,employer_wallet,status,start_date,fees_paid_usdc,skills_used,duration_days,notes)
+               VALUES (?,?,?,?,?,?,?,?,?)""",
+            (job_id, talent_wallet, employer_wallet, status, str(date.today()),
+             fees_paid_usdc, skills_used, duration_days, notes)
+        )
+    else:
+        conn.execute(
+            """UPDATE hiring_history
+               SET status=?, fees_paid_usdc=?, skills_used=?, duration_days=?, notes=?
+               WHERE job_id=? AND talent_wallet=?""",
+            (status, fees_paid_usdc, skills_used, duration_days, notes, job_id, talent_wallet)
+        )
+    conn.commit()
+    conn.close()
+
+
+def complete_hiring_and_rate(job_id: int, talent_wallet: str, employer_wallet: str,
+                             fees_paid_usdc: float, duration_days: int,
+                             rating_by_employer: float, skills_used: str, notes: str = ""):
+    from datetime import date
+    conn = get_connection()
+    conn.execute(
+        """UPDATE hiring_history
+           SET status='Ended & Paid', end_date=?, fees_paid_usdc=?, duration_days=?,
+               rating_by_employer=?, skills_used=?, notes=?
+           WHERE job_id=? AND talent_wallet=?""",
+        (str(date.today()), fees_paid_usdc, duration_days, rating_by_employer,
+         skills_used, notes, job_id, talent_wallet)
+    )
+
+    # Employer feedback becomes part of long-term credibility.
+    reviews = pd.read_sql(
+        "SELECT AVG(rating_by_employer) AS r FROM hiring_history WHERE talent_wallet=? AND rating_by_employer IS NOT NULL",
+        conn, params=(talent_wallet,)
+    )
+    avg_rating_5 = float(reviews["r"].iloc[0] or 0)
+    conn.execute(
+        "UPDATE talents SET review_score=? WHERE wallet_address=?",
+        (round(avg_rating_5 / 5.0 * 100, 1), talent_wallet)
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_hiring_history_for_employer(employer_wallet: str) -> pd.DataFrame:
+    conn = get_connection()
+    df = pd.read_sql(
+        """SELECT h.*, t.name, t.role, t.skills, t.years_exp, t.rating,
+                  j.title AS job_title, j.company
+           FROM hiring_history h
+           JOIN talents t ON h.talent_wallet=t.wallet_address
+           JOIN jobs j ON h.job_id=j.job_id
+           WHERE h.employer_wallet=?
+           ORDER BY h.id DESC""",
+        conn, params=(employer_wallet,)
+    )
+    conn.close()
+    return df
+
+
+def record_skill_test_attempt(talent_wallet: str, skill: str, score: float, duration_sec: int):
+    from datetime import date
+    conn = get_connection()
+    conn.execute(
+        "INSERT INTO skill_tests (talent_wallet,skill,score,duration_sec,taken_date) VALUES (?,?,?,?,?)",
+        (talent_wallet, skill, score, duration_sec, str(date.today()))
+    )
+
+    stats = pd.read_sql(
+        """SELECT AVG(score) AS avg_score,
+                  COUNT(DISTINCT CASE WHEN score >= 60 THEN skill END) AS verified_count
+           FROM skill_tests WHERE talent_wallet=?""",
+        conn, params=(talent_wallet,)
+    )
+    avg_score = float(stats["avg_score"].iloc[0] or 0)
+    verified = int(stats["verified_count"].iloc[0] or 0)
+    conn.execute(
+        "UPDATE talents SET skill_test_score=?, verified_skills_count=? WHERE wallet_address=?",
+        (round(avg_score, 1), verified, talent_wallet)
+    )
+    conn.commit()
+    conn.close()
 
 
 def get_platform_stats() -> dict:
