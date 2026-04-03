@@ -14,7 +14,11 @@ html, body, [class*="css"] {
     padding-bottom: 3rem !important;
     max-width: 1140px !important;
 }
-#MainMenu, footer, header { visibility: hidden; }
+#MainMenu, footer { visibility: hidden; }
+header { visibility: hidden; }
+/* Keep sidebar collapse/expand arrow visible */
+[data-testid="collapsedControl"] { visibility: visible !important; display: flex !important; }
+section[data-testid="stSidebarCollapsedControl"] { visibility: visible !important; }
 
 /* ══════════════════════════════════════════
    SIDEBAR

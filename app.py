@@ -98,12 +98,12 @@ with st.sidebar:
 # PAGES
 # ═══════════════════════════════════════════
 page = st.navigation([
-    st.Page("pages/1_🏠_Home.py",              title="Home",              icon="🏠"),
-    st.Page("pages/2_✨_Create_Profile.py",     title="Create Profile",    icon="✨"),
-    st.Page("pages/3_📊_Talent_Dashboard.py",   title="Talent Dashboard",  icon="📊"),
-    st.Page("pages/4_🔥_Marketplace.py",        title="Marketplace",       icon="🔥"),
-    st.Page("pages/5_📢_Post_Job.py",           title="Post a Job",        icon="📢"),
-    st.Page("pages/6_🏢_Employer_Dashboard.py", title="Employer Hub",      icon="🏢"),
-    st.Page("pages/7_📈_Analytics.py",          title="Analytics",         icon="📈"),
+    st.Page("pages/1_Home.py",              title="Home",              icon="🏠"),
+    st.Page("pages/2_Create_Profile.py",    title="Create Profile",    icon="✨"),
+    st.Page("pages/3_Talent_Dashboard.py",  title="Talent Dashboard",  icon="📊"),
+    st.Page("pages/4_Marketplace.py",       title="Marketplace",       icon="🔥"),
+    st.Page("pages/5_Post_Job.py",          title="Post a Job",        icon="📢"),
+    st.Page("pages/6_Employer_Dashboard.py",title="Employer Hub",      icon="🏢"),
+    st.Page("pages/7_Analytics.py",         title="Analytics",         icon="📈"),
 ])
 page.run()
