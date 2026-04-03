@@ -191,7 +191,7 @@ with col_action:
   <div style='font-size:15px;font-weight:600;color:#fff;margin-bottom:14px;'>Match Breakdown</div>
   {bars_html}
   <div class='formula' style='margin-top:12px;'>
-    <span class='hl'>Match</span> = 0.38xSkill + 0.22xExp + 0.16xRating + 0.10xCompletion + 0.09xTests + 0.05xReviews = <span class='hl'>{selected_score:.0f}%</span>
+    <span class='hl'>Match</span> = 0.45xSkill + 0.25xExp + 0.20xRating + 0.10xCompletion = <span class='hl'>{selected_score:.0f}%</span>
   </div>
 </div>
 """, unsafe_allow_html=True)

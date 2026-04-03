@@ -230,7 +230,7 @@ st.markdown("""
   <div style='font-size:13px;color:#4a6a84;line-height:1.9;max-width:600px;margin:0 auto;'>
     Match scores are computed using a <strong style='color:#c8d8e8;'>weighted linear model</strong>:<br>
     <code style='background:rgba(255,255,255,.05);padding:2px 8px;border-radius:4px;color:#4de8b4;'>
-            Score = 0.38×Skill + 0.22×Experience + 0.16×Rating + 0.10×Completion + 0.09×Tests + 0.05×Reviews
+      Score = 0.45×Skill + 0.25×Experience + 0.20×Rating + 0.10×Completion
     </code>
     <br><br>
     Level-2 upgrade: LightGBM ranker trained on synthetic outcomes ·

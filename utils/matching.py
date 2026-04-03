@@ -2,12 +2,10 @@ import json
 
 
 WEIGHTS = {
-    "skill":      0.38,
-    "experience": 0.22,
-    "rating":     0.16,
+    "skill":      0.45,
+    "experience": 0.25,
+    "rating":     0.20,
     "completion": 0.10,
-    "skill_test": 0.09,
-    "reviews":    0.05,
 }
 
 
@@ -36,16 +34,12 @@ def calculate_match(talent_row, job_row) -> float:
     exp_score     = min(talent_row["years_exp"] / max(exp_required, 1), 1.0)
     rating_score  = talent_row["rating"] / 5.0
     comp_score    = talent_row["completion_rate"] / 100.0
-    test_score    = float(talent_row.get("skill_test_score", 0) or 0) / 100.0
-    review_score  = float(talent_row.get("review_score", 0) or 0) / 100.0
 
     raw = (
         WEIGHTS["skill"]      * skill_match +
         WEIGHTS["experience"] * exp_score   +
         WEIGHTS["rating"]     * rating_score +
-        WEIGHTS["completion"] * comp_score +
-        WEIGHTS["skill_test"] * test_score +
-        WEIGHTS["reviews"]    * review_score
+        WEIGHTS["completion"] * comp_score
     )
     return round(raw * 100, 1)
 
@@ -65,16 +59,12 @@ def get_breakdown(talent_row, job_row) -> dict:
     exp_score    = round(min(talent_row["years_exp"] / max(exp_required, 1), 1.0) * 100, 1)
     rating_score = round(talent_row["rating"] / 5.0 * 100, 1)
     comp_score   = round(talent_row["completion_rate"], 1)
-    test_score   = round(float(talent_row.get("skill_test_score", 0) or 0), 1)
-    review_score = round(float(talent_row.get("review_score", 0) or 0), 1)
 
     return {
         "Skill Match":      skill_match,
         "Experience Fit":   exp_score,
         "Peer Ratings":     rating_score,
         "Completion Rate":  comp_score,
-        "Skill Tests":      test_score,
-        "Employer Reviews": review_score,
     }
 
 

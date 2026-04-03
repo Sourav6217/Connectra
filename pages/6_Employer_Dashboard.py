@@ -2,12 +2,7 @@ import streamlit as st
 import json, sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from styles import GLOBAL_CSS
-from data.sqlite_db import (
-  get_all_jobs, get_all_talents, get_applications_for_job,
-  upsert_interview, get_interview, add_chat_message, get_chat_messages,
-  set_application_status, upsert_hiring_record, complete_hiring_and_rate,
-  get_hiring_history_for_employer, set_job_status,
-)
+from data.sqlite_db import get_all_jobs, get_all_talents, get_applications_for_job
 from utils.matching import rank_talents_for_job, get_success_prob, get_risk_level, score_class
 from utils.blockchain import simulate_hire, short_hash
 from utils.ui_components import html_bar, render_hbar
@@ -36,7 +31,7 @@ if jobs_df.empty:
         st.switch_page("pages/5_Post_Job.py")
     st.stop()
 
-tabs = st.tabs(["🔥 Top Candidates", "📋 My Jobs", "🏆 Leaderboard", "⬡ Hire Flow", "🕘 Hiring History"])
+tabs = st.tabs(["🔥 Top Candidates", "📋 My Jobs", "🏆 Leaderboard", "⬡ Hire Flow"])
 
 AVATAR_COLS = [
     ("av-g","#1D9E75"), ("av-b","#378ADD"), ("av-a","#EF9F27"),
@@ -52,9 +47,7 @@ def talent_score_fn(r):
     e  = min(r["years_exp"]/10, 1) * 100
     ra = r["rating"]/5.0 * 100
     c  = float(r["completion_rate"])
-    ts = float(r.get("skill_test_score", 0) or 0)
-    rv = float(r.get("review_score", 0) or 0)
-    return round(0.26*s + 0.27*e + 0.19*ra + 0.14*c + 0.09*ts + 0.05*rv)
+    return round(0.30*s + 0.30*e + 0.25*ra + 0.15*c)
 
 # ══════════════════════════════════════════
 # TAB 1: TOP CANDIDATES
@@ -172,7 +165,7 @@ with tabs[1]:
         <div style='font-size:18px;font-weight:700;color:#4de8b4;font-family:Syne,sans-serif;'>{top_sc:.0f}%</div>
         <div style='font-size:10px;color:#2a4a34;'>Top Score</div>
       </div>
-      <span class='tag tg'>{job.get("status","Open")}</span>
+      <span class='tag tg'>Open</span>
     </div>
   </div>
 </div>
@@ -246,7 +239,7 @@ with tabs[2]:
 with tabs[3]:
     st.markdown("""
 <div class='s-title' style='font-size:18px;margin-bottom:6px;'>Onchain Hire Flow</div>
-<div class='s-sub'>Book interview + chat for credibility before escrow hiring</div>
+<div class='s-sub'>Select a candidate to initiate escrow and mint a Work Agreement NFT</div>
 """, unsafe_allow_html=True)
 
     col_sel1, col_sel2 = st.columns(2)
@@ -255,38 +248,32 @@ with tabs[3]:
             "Job:", job_titles, key="hire_job"
         )
         hire_job_id = int(hire_job_label.split("—")[0].replace("#","").strip())
-        hire_job = jobs_df[jobs_df["job_id"] == hire_job_id].iloc[0]
+        hire_job    = jobs_df[jobs_df["job_id"]==hire_job_id].iloc[0]
 
     top_for_hire = rank_talents_for_job(talents_df, hire_job, top_n=5)
     hire_options = [f"{t['name']} — {s:.0f}% match" for t, s in top_for_hire]
 
     with col_sel2:
         if hire_options:
-            chosen = st.selectbox("Candidate:", hire_options, key="hire_cand")
-            chosen_idx = hire_options.index(chosen)
+            chosen      = st.selectbox("Candidate:", hire_options, key="hire_cand")
+            chosen_idx  = hire_options.index(chosen)
             chosen_talent, chosen_score = top_for_hire[chosen_idx]
         else:
             st.info("No candidates found.")
             st.stop()
 
-    employer_wallet = st.session_state.get("wallet", "0xDemoEmployerWallet")
-    chosen_wallet = str(chosen_talent["wallet_address"])
-
     st.markdown("<br>", unsafe_allow_html=True)
+
     col_summary, col_action = st.columns([1.4, 1], gap="large")
 
     with col_summary:
         prob, emoji = get_success_prob(chosen_score)
         risk_label, risk_cls = get_risk_level(chosen_talent)
-        nm = chosen_talent["name"]
+        nm       = chosen_talent["name"]
         initials = nm[0] + (nm.split()[-1][0] if " " in nm else "")
-        sc_cls = score_class(chosen_score)
-        bars_html = (
-            html_bar("Match Score", chosen_score)
-            + html_bar("Completion Rate", float(chosen_talent["completion_rate"]))
-            + html_bar("Skill Test", float(chosen_talent.get("skill_test_score", 0) or 0))
-            + html_bar("Employer Review", float(chosen_talent.get("review_score", 0) or 0))
-        )
+        sc_cls   = score_class(chosen_score)
+        bars_html = (html_bar("Match Score", chosen_score) +
+                     html_bar("Completion Rate", float(chosen_talent["completion_rate"])))
 
         st.markdown(f"""
 <div class='g-card anim-up'>
@@ -318,50 +305,6 @@ with tabs[3]:
 </div>
 """, unsafe_allow_html=True)
 
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.markdown("**Credibility Actions Before Hire**")
-
-        interview_df = get_interview(hire_job_id, chosen_wallet)
-        with st.expander("📅 Book Interview", expanded=interview_df.empty):
-            c1, c2 = st.columns(2)
-            with c1:
-                i_date = st.date_input("Interview date", key=f"i_date_{hire_job_id}_{chosen_wallet}")
-                i_time = st.time_input("Interview time", key=f"i_time_{hire_job_id}_{chosen_wallet}")
-            with c2:
-                i_mode = st.selectbox(
-                    "Mode", ["Video", "Audio", "Chat"],
-                    key=f"i_mode_{hire_job_id}_{chosen_wallet}"
-                )
-                i_notes = st.text_input("Notes", key=f"i_note_{hire_job_id}_{chosen_wallet}")
-            if st.button("Book Interview", key=f"book_interview_{hire_job_id}_{chosen_wallet}"):
-                scheduled_at = f"{i_date} {i_time.strftime('%H:%M')}"
-                upsert_interview(hire_job_id, chosen_wallet, employer_wallet, scheduled_at, i_mode, i_notes)
-                set_application_status(chosen_wallet, hire_job_id, "Interview Scheduled")
-                st.success("Interview booked.")
-                st.rerun()
-
-            if not interview_df.empty:
-                irow = interview_df.iloc[0]
-                st.info(f"Scheduled: {irow['scheduled_at']} · {irow['mode']} · {irow['status']}")
-
-        with st.expander("💬 Employer Chat", expanded=False):
-            msgs = get_chat_messages(hire_job_id, chosen_wallet, employer_wallet)
-            if msgs.empty:
-                st.caption("No messages yet.")
-            else:
-                for _, msg in msgs.tail(8).iterrows():
-                    label = "You" if msg["sender_role"] == "Employer" else "Talent"
-                    st.markdown(
-                        f"<div style='font-size:12px;padding:8px 10px;margin-bottom:6px;border-radius:10px;"
-                        f"background:{'rgba(29,158,117,.12)' if label == 'You' else 'rgba(56,138,221,.12)'};'>"
-                        f"<strong>{label}</strong> · <span style='color:#4a6a84;'>{msg['sent_at']}</span><br>{msg['message']}</div>",
-                        unsafe_allow_html=True,
-                    )
-            chat_msg = st.text_input("Type a message", key=f"chat_box_{hire_job_id}_{chosen_wallet}")
-            if st.button("Send", key=f"chat_send_{hire_job_id}_{chosen_wallet}") and chat_msg.strip():
-                add_chat_message(hire_job_id, chosen_wallet, employer_wallet, "Employer", chat_msg.strip())
-                st.rerun()
-
     with col_action:
         st.markdown(f"""
 <div class='g-card anim-up d2' style='border-color:rgba(29,158,117,.4);'>
@@ -378,21 +321,8 @@ with tabs[3]:
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("Hire and Escrow USDC", use_container_width=True, key="hire_btn"):
             with st.spinner("Creating Work Agreement NFT and escrowing USDC..."):
-                import time
-                time.sleep(1.2)
-                result = simulate_hire(chosen_wallet, int(hire_job["budget_usdc"]))
-            set_application_status(chosen_wallet, hire_job_id, "Hired")
-            upsert_hiring_record(
-                hire_job_id,
-                chosen_wallet,
-                employer_wallet,
-                status="Ongoing",
-                fees_paid_usdc=0,
-                skills_used=hire_job.get("required_skills", "[]"),
-                duration_days=int(hire_job["timeline_days"]),
-                notes=f"Work NFT #{result['work_nft_id']} created",
-            )
-            set_job_status(hire_job_id, "In Progress")
+                import time; time.sleep(1.2)
+                result = simulate_hire(str(chosen_talent["wallet_address"]), int(hire_job["budget_usdc"]))
             st.success(f"Hired! Escrow locked · Work NFT #{result['work_nft_id']}")
             st.markdown(f"""
 <div style='font-size:12px;margin-top:10px;line-height:2;'>
@@ -401,87 +331,3 @@ with tabs[3]:
   <span style='color:#1D9E75;font-size:11px;'>${result["escrow_amount"]:,} USDC locked</span>
 </div>
 """, unsafe_allow_html=True)
-
-# ══════════════════════════════════════════
-# TAB 5: HIRING HISTORY
-# ══════════════════════════════════════════
-with tabs[4]:
-    st.markdown("""
-<div class='s-title' style='font-size:18px;margin-bottom:6px;'>Past Hiring / Hiring History</div>
-<div class='s-sub'>Track ongoing vs ended engagements, paid amount, and rate delivered talent</div>
-""", unsafe_allow_html=True)
-
-    employer_wallet = st.session_state.get("wallet", "0xDemoEmployerWallet")
-    history_df = get_hiring_history_for_employer(employer_wallet)
-
-    if history_df.empty:
-        st.info("No hiring records yet. Hire from the Hire Flow tab to populate history.")
-    else:
-        ongoing = history_df[history_df["status"] == "Ongoing"]
-        ended = history_df[history_df["status"] == "Ended & Paid"]
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Total Engagements", len(history_df))
-        c2.metric("Ongoing", len(ongoing))
-        c3.metric("Ended & Paid", len(ended))
-
-        st.markdown("<br>", unsafe_allow_html=True)
-        for _, h in history_df.iterrows():
-            status_tag = "tg" if h["status"] == "Ended & Paid" else "tb"
-            rating_txt = f"{h['rating_by_employer']}/5" if h.get("rating_by_employer") else "Not rated"
-            fees_paid = float(h.get("fees_paid_usdc", 0) or 0)
-
-            st.markdown(f"""
-<div class='g-card' style='margin-bottom:10px;'>
-  <div style='display:flex;align-items:center;gap:12px;'>
-    <div style='flex:1;'>
-      <div style='font-size:15px;font-weight:700;color:#fff;'>{h['job_title']} · {h['company']}</div>
-      <div style='font-size:12px;color:#4a6a84;margin-top:2px;'>
-        Talent: {h['name']} ({h['role']}) · {h['years_exp']} yrs
-      </div>
-      <div style='font-size:11px;color:#4a6a84;margin-top:6px;'>
-        Duration: {int(h.get('duration_days', 0) or 0)} days · Fees Paid: ${fees_paid:,.0f} · Rating: {rating_txt}
-      </div>
-    </div>
-    <span class='tag {status_tag}'>{h['status']}</span>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-            if h["status"] == "Ongoing":
-                with st.expander(f"Close & Rate: {h['name']} for job #{int(h['job_id'])}"):
-                    rc1, rc2 = st.columns(2)
-                    with rc1:
-                        end_fee = st.number_input(
-                            "Fees paid (USDC)",
-                            min_value=0,
-                            value=int(h.get("fees_paid_usdc", 0) or 0),
-                            key=f"fee_{int(h['id'])}",
-                        )
-                        end_duration = st.number_input(
-                            "Duration (days)",
-                            min_value=1,
-                            value=max(1, int(h.get("duration_days", 1) or 1)),
-                            key=f"dur_{int(h['id'])}",
-                        )
-                    with rc2:
-                        end_rating = st.slider("Rate talent", 1.0, 5.0, 4.0, 0.1, key=f"rate_{int(h['id'])}")
-                        skills_used = st.text_area(
-                            "Skills used (comma separated)",
-                            value=", ".join(json.loads(h.get("skills_used", "[]"))) if str(h.get("skills_used", "")).startswith("[") else str(h.get("skills_used", "")),
-                            key=f"skills_{int(h['id'])}",
-                        )
-                    end_notes = st.text_input("Notes", key=f"notes_{int(h['id'])}")
-                    if st.button("Mark Ended & Paid", key=f"close_{int(h['id'])}"):
-                        complete_hiring_and_rate(
-                            int(h["job_id"]),
-                            str(h["talent_wallet"]),
-                            employer_wallet,
-                            float(end_fee),
-                            int(end_duration),
-                            float(end_rating),
-                            skills_used,
-                            end_notes,
-                        )
-                        set_job_status(int(h["job_id"]), "Closed")
-                        st.success("Hiring record completed and talent rating saved.")
-                        st.rerun()

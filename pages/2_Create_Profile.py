@@ -1,6 +1,5 @@
 import streamlit as st
 import json
-import random
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from styles import GLOBAL_CSS
@@ -30,8 +29,6 @@ if "wiz_step" not in st.session_state:
     st.session_state.wiz_step = 1
 if "wiz_data" not in st.session_state:
     st.session_state.wiz_data = {}
-if "skill_test_results" not in st.session_state:
-  st.session_state.skill_test_results = {}
 
 step = st.session_state.wiz_step
 
@@ -134,38 +131,6 @@ elif step == 2:
         render_skills(skills)
         st.markdown("</div>", unsafe_allow_html=True)
 
-        # Optional, time-bound demo tests to increase credibility.
-        st.markdown("<hr class='div'>", unsafe_allow_html=True)
-        st.markdown("**Skill Test (Optional, 60s demo):**")
-        st.caption("Taking tests is optional, but strong scores increase your Talent Score and verification credibility.")
-
-        chosen_skill = st.selectbox(
-            "Pick one selected skill to attempt",
-            skills,
-            key="skill_test_pick"
-        )
-        if st.button("Run 60s Demo Test", key="run_skill_test"):
-            score = random.randint(48, 97)
-            st.session_state.skill_test_results[chosen_skill] = score
-            st.success(f"{chosen_skill} test completed: {score}/100")
-
-        if st.session_state.skill_test_results:
-            verified_count = len([x for x in st.session_state.skill_test_results.values() if x >= 60])
-            avg_score = round(sum(st.session_state.skill_test_results.values()) / len(st.session_state.skill_test_results), 1)
-            chips = " ".join([
-                f"<span class='tag {'tg' if v >= 60 else 'ta'}'>{k}: {v}</span>"
-                for k, v in st.session_state.skill_test_results.items()
-            ])
-            st.markdown(f"""
-            <div style='margin-top:8px;'>
-              {chips}
-              <div style='font-size:11px;color:#4a6a84;margin-top:8px;'>
-                Avg test score: <span style='color:#fff;'>{avg_score}</span>
-                · Verified skills (>=60): <span style='color:#4de8b4;'>{verified_count}</span>
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
-
         st.markdown(f"""
         <div style='margin-top:16px;padding:12px;background:rgba(29,158,117,.08);
                     border-radius:10px;border:1px solid rgba(29,158,117,.2);'>
@@ -228,17 +193,11 @@ elif step == 3:
     # Quick score preview
     from utils.matching import WEIGHTS
     skill_score = min(len(st.session_state.wiz_data.get("skills", [])) / 8, 1.0) * 100
-    test_score = 0
-    review_score = 0
-    if st.session_state.skill_test_results:
-        test_score = sum(st.session_state.skill_test_results.values()) / len(st.session_state.skill_test_results)
     preview_score = round(
         WEIGHTS["skill"] * skill_score / 100 * 100 +
         WEIGHTS["experience"] * min(st.session_state.wiz_data.get("years_exp", 3) / 8, 1.0) * 100 +
         WEIGHTS["rating"] * (rating / 5.0) * 100 +
-        WEIGHTS["completion"] * (completion / 100) * 100 +
-        WEIGHTS["skill_test"] * test_score +
-        WEIGHTS["reviews"] * review_score
+        WEIGHTS["completion"] * (completion / 100) * 100
     )
     st.markdown(f"""
     <hr class='div'>
@@ -383,11 +342,6 @@ elif step == 4:
                     "nft_tx_hash": result["tx_hash"],
                     "availability": d["availability"],
                     "hourly_rate": d["hourly_rate"],
-                    "skill_test_score": round(
-                        sum(st.session_state.skill_test_results.values()) / len(st.session_state.skill_test_results), 1
-                    ) if st.session_state.skill_test_results else 0,
-                    "verified_skills_count": len([x for x in st.session_state.skill_test_results.values() if x >= 60]),
-                    "review_score": 0,
                 }
                 upsert_talent(row)
 
@@ -422,7 +376,6 @@ elif step == 4:
 
             st.session_state.wiz_step = 1
             st.session_state.wiz_data = {}
-            st.session_state.skill_test_results = {}
 
             import time; time.sleep(1.5)
             st.switch_page("pages/3_Talent_Dashboard.py")

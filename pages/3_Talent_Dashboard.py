@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 import json, sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from styles import GLOBAL_CSS
-from data.sqlite_db import get_talent, get_applications_for_talent, get_all_jobs, record_skill_test_attempt
+from data.sqlite_db import get_talent, get_applications_for_talent, get_all_jobs
 from utils.matching import calculate_match, get_breakdown, get_risk_level, score_class
 from utils.blockchain import format_wallet, short_hash
 from utils.ui_components import render_gauge, render_radar, render_skills, html_bar, nft_card_html
@@ -36,9 +36,7 @@ exp_s    = min(row["years_exp"] / 10, 1.0) * 100
 rat_s    = row["rating"] / 5.0 * 100
 comp_s   = row["completion_rate"]
 skill_s  = min(len(skills_list) / 8, 1.0) * 100
-test_s   = float(row.get("skill_test_score", 0) or 0)
-review_s = float(row.get("review_score", 0) or 0)
-talent_score = round(0.26 * skill_s + 0.27 * exp_s + 0.19 * rat_s + 0.14 * comp_s + 0.09 * test_s + 0.05 * review_s)
+talent_score = round(0.3 * skill_s + 0.3 * exp_s + 0.25 * rat_s + 0.15 * comp_s)
 risk_label, risk_cls = get_risk_level(row)
 
 # ════════════════════════════════════════════════
@@ -51,7 +49,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-tabs = st.tabs(["🪪 Profile", "🤖 AI Insights", "⬡ NFT Identity", "📋 Applications", "📈 Skill Gaps", "🧪 Skill Tests"])
+tabs = st.tabs(["🪪 Profile", "🤖 AI Insights", "⬡ NFT Identity", "📋 Applications", "📈 Skill Gaps"])
 
 # ════════════════════════════════════════════════
 # TAB 1: PROFILE
@@ -120,8 +118,8 @@ with tabs[0]:
         for col, (val, lbl, delay) in zip([c1,c2,c3,c4], [
             (row["projects"], "Projects", "0.1s"),
             (f"{row['rating']}/5", "Rating", "0.18s"),
-          (f"{row['completion_rate']}%", "Completion", "0.26s"),
-          (f"{int(test_s)}", "Skill Test", "0.34s"),
+            (f"{row['completion_rate']}%", "Completion", "0.26s"),
+            (f"${row.get('hourly_rate',30)}", "Hourly Rate", "0.34s"),
         ]):
             with col:
                 st.markdown(f"""
@@ -202,13 +200,10 @@ with tabs[1]:
           {html_bar("Experience", exp_s)}
           {html_bar("Peer Rating", rat_s)}
           {html_bar("Completion Rate", comp_s)}
-          {html_bar("Skill Test", test_s)}
-          {html_bar("Employer Reviews", review_s)}
           <div class='formula' style='margin-top:14px;'>
-            <span class='hl'>Talent Score</span> = 0.26×Skill + 0.27×Exp + 0.19×Rating + 0.14×Completion + 0.09×Tests + 0.05×Reviews<br>
-            = 0.26×<span class='num'>{skill_s:.0f}</span> + 0.27×<span class='num'>{exp_s:.0f}</span>
-              + 0.19×<span class='num'>{rat_s:.0f}</span> + 0.14×<span class='num'>{comp_s:.0f}</span>
-              + 0.09×<span class='num'>{test_s:.0f}</span> + 0.05×<span class='num'>{review_s:.0f}</span>
+            <span class='hl'>Talent Score</span> = 0.30×Skill + 0.30×Exp + 0.25×Rating + 0.15×Completion<br>
+            = 0.30×<span class='num'>{skill_s:.0f}</span> + 0.30×<span class='num'>{exp_s:.0f}</span>
+              + 0.25×<span class='num'>{rat_s:.0f}</span> + 0.15×<span class='num'>{comp_s:.0f}</span>
             = <span class='hl'>{talent_score}</span>
           </div>
         </div>
@@ -404,41 +399,3 @@ with tabs[4]:
                     </div>
                     """, unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
-
-
-# ════════════════════════════════════════════════
-# TAB 6: SKILL TESTS
-# ════════════════════════════════════════════════
-with tabs[5]:
-    st.markdown("""
-    <div class='s-title' style='font-size:18px;margin-bottom:6px;'>Skill Test Lab</div>
-    <div class='s-sub'>Optional 60-second demo tests. Better scores raise your credibility and Talent Score.</div>
-    """, unsafe_allow_html=True)
-
-    if not skills_list:
-        st.info("Add skills to your profile first.")
-    else:
-        c1, c2 = st.columns([1.2, 1])
-        with c1:
-            test_skill = st.selectbox("Choose a skill", skills_list, key="skill_test_dashboard_skill")
-            st.caption("Demo mode: one-click simulated time-bound test.")
-            if st.button("Take 60s Demo Test", key="skill_test_dashboard_btn"):
-                import random
-                import time
-                with st.spinner("Running timed test..."):
-                    time.sleep(0.8)
-                    score = random.randint(45, 98)
-                record_skill_test_attempt(wallet, test_skill, float(score), 60)
-                st.success(f"{test_skill}: {score}/100 recorded")
-                st.rerun()
-        with c2:
-            verified = int(row.get("verified_skills_count", 0) or 0)
-            st.markdown(f"""
-            <div class='g-card'>
-              <div style='font-size:12px;color:#4a6a84;'>Current Test Score</div>
-              <div style='font-family:Syne,sans-serif;font-size:40px;font-weight:800;color:#4de8b4;'>
-                {test_s:.0f}
-              </div>
-              <div style='font-size:12px;color:#4a6a84;'>Verified skills (score >= 60): <span style='color:#fff;'>{verified}</span></div>
-            </div>
-            """, unsafe_allow_html=True)
