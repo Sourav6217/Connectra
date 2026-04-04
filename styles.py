@@ -9,45 +9,40 @@ html, body, [data-testid="stAppViewContainer"] {
   font-family: 'DM Sans', sans-serif;
 }
 
-/* ── SIDEBAR – always open, brand pinned, rest scrollable ──── */
+/* ── SIDEBAR ─────────────────────────── */
 [data-testid="stSidebar"] {
-  min-width: 268px !important;
-  max-width: 268px !important;
-  width: 268px !important;
+  min-width: 265px !important;
+  max-width: 265px !important;
+  width: 265px !important;
   background: #030b16 !important;
-  border-right: 1px solid rgba(29,158,117,.14) !important;
+  border-right: 1px solid rgba(29,158,117,.15) !important;
 }
 [data-testid="stSidebarCollapseButton"],
 [data-testid="collapsedControl"],
 button[kind="header"] { display: none !important; }
-
-/* Hide default Streamlit page nav */
 [data-testid="stSidebarNav"] { display: none !important; }
 
-/* Brand block: sticky at top via CSS on the markdown element */
+/* Brand block sticky */
 [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
   padding-top: 0 !important;
 }
 
-/* ── NAV BUTTONS inside sidebar ────────────────────────────── */
-/* All sidebar buttons default: transparent ghost */
+/* ── SIDEBAR BUTTONS (nav items) ──────── */
 [data-testid="stSidebar"] .stButton > button {
   background: transparent !important;
   border: none !important;
-  color: #4a6a84 !important;
   border-radius: 10px !important;
+  color: #4a6a84 !important;
   font-family: 'DM Sans', sans-serif !important;
   font-size: 13px !important;
   font-weight: 400 !important;
   padding: 9px 14px !important;
   margin: 1px 4px !important;
-  width: calc(100% - 8px) !important;
   text-align: left !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
+  width: calc(100% - 8px) !important;
   transition: all .15s !important;
   justify-content: flex-start !important;
+  letter-spacing: 0.01em !important;
 }
 [data-testid="stSidebar"] .stButton > button:hover {
   background: rgba(29,158,117,.08) !important;
@@ -59,30 +54,13 @@ button[kind="header"] { display: none !important; }
   border: none !important;
   outline: none !important;
 }
-/* Active nav button – key class applied via button label matching */
-[data-testid="stSidebar"] .stButton button[data-active="true"] {
-  background: rgba(29,158,117,.14) !important;
-  color: #4de8b4 !important;
-  font-weight: 600 !important;
-}
-/* Connect Wallet & Reset buttons keep normal styled look */
-[data-testid="stSidebar"] .stButton:has(> button[data-testid="connect_wallet"]) > button,
-[data-testid="stSidebar"] .stButton:has(> button[data-testid="reset_data"]) > button {
-  background: rgba(29,158,117,.1) !important;
-  border: 1px solid rgba(29,158,117,.3) !important;
-  color: #4de8b4 !important;
-  text-align: center !important;
-  justify-content: center !important;
-  margin: 2px 0 !important;
-  width: 100% !important;
-}
 
-/* ── Radio toggle ── */
+/* ── ROLE RADIO ─────────────────────── */
 [data-testid="stSidebar"] [data-testid="stRadio"] > div { gap: 4px !important; }
 [data-testid="stSidebar"] [data-testid="stRadio"] label {
   font-size: 13px !important;
   color: #4a6a84 !important;
-  padding: 5px 12px !important;
+  padding: 5px 14px !important;
   border-radius: 8px !important;
   background: rgba(29,158,117,.05) !important;
   border: 1px solid rgba(29,158,117,.12) !important;
@@ -95,32 +73,35 @@ button[kind="header"] { display: none !important; }
   font-weight: 600 !important;
 }
 
-/* ── MAIN CONTENT PADDING ───────────────── */
+/* ── MAIN CONTENT ─────────────────────── */
 .main .block-container { padding: 24px 36px 60px !important; max-width: 100% !important; }
 
-/* ── BACK BUTTON (main area) ─────────────── */
-.main .block-container > div:first-child .stButton > button {
-  background: transparent !important;
-  border: 1px solid rgba(29,158,117,.2) !important;
-  color: #4a6a84 !important;
-  font-size: 12px !important;
-  padding: 5px 12px !important;
-  margin-bottom: 8px !important;
-  border-radius: 8px !important;
-}
-.main .block-container > div:first-child .stButton > button:hover {
+/* ── MAIN AREA BUTTONS ─────────────────── */
+.stButton > button {
+  background: rgba(29,158,117,.12) !important;
+  border: 1px solid rgba(29,158,117,.35) !important;
   color: #4de8b4 !important;
-  border-color: rgba(29,158,117,.5) !important;
+  border-radius: 10px !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  padding: 8px 18px !important;
+  transition: all .18s !important;
+}
+.stButton > button:hover {
+  background: rgba(29,158,117,.22) !important;
+  border-color: rgba(29,158,117,.6) !important;
+  color: #fff !important;
 }
 
-/* ── TYPOGRAPHY ──────────────────────────── */
+/* ── TYPOGRAPHY ──────────────────────── */
 .s-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 4px; }
 .s-sub   { font-size: 13px; color: #4a6a84; margin-bottom: 18px; }
 .hero-title { font-family: 'Syne', sans-serif; font-size: clamp(28px,4vw,48px); font-weight: 800; color: #fff; line-height: 1.18; margin-bottom: 16px; }
 .hero-sub   { font-size: 15px; color: #4a6a84; line-height: 1.75; max-width: 560px; margin-bottom: 28px; }
 .g { background: linear-gradient(90deg,#1D9E75,#4de8b4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-/* ── CARDS ───────────────────────────────── */
+/* ── CARDS ────────────────────────────── */
 .g-card {
   background: rgba(10,25,48,.6);
   border: 1px solid rgba(29,158,117,.15);
@@ -143,7 +124,7 @@ button[kind="header"] { display: none !important; }
 .m-val  { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; color: #fff; }
 .m-delta{ font-size: 10px; color: #1D9E75; margin-top: 3px; }
 
-/* ── HERO ────────────────────────────────── */
+/* ── HERO ─────────────────────────────── */
 .hero {
   background: linear-gradient(135deg,rgba(4,13,26,.98) 0%,rgba(10,25,18,.98) 100%);
   border: 1px solid rgba(29,158,117,.15);
@@ -158,25 +139,7 @@ button[kind="header"] { display: none !important; }
   pointer-events: none;
 }
 
-/* ── BUTTONS (main area) ─────────────────── */
-.stButton > button {
-  background: rgba(29,158,117,.12) !important;
-  border: 1px solid rgba(29,158,117,.35) !important;
-  color: #4de8b4 !important;
-  border-radius: 10px !important;
-  font-family: 'DM Sans', sans-serif !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  padding: 8px 18px !important;
-  transition: all .18s !important;
-}
-.stButton > button:hover {
-  background: rgba(29,158,117,.22) !important;
-  border-color: rgba(29,158,117,.6) !important;
-  color: #fff !important;
-}
-
-/* ── FORM INPUTS ─────────────────────────── */
+/* ── FORM INPUTS ──────────────────────── */
 .stTextInput > div > input,
 .stTextArea > div > textarea,
 .stNumberInput > div > input {
@@ -199,9 +162,8 @@ button[kind="header"] { display: none !important; }
   color: #c8d8e8 !important;
 }
 .stSlider > div { color: #4a6a84 !important; }
-.stSlider [data-testid="stThumbValue"] { color: #4de8b4 !important; }
 
-/* ── TABS ────────────────────────────────── */
+/* ── TABS ─────────────────────────────── */
 .stTabs [data-testid="stTabBar"] {
   background: transparent !important;
   border-bottom: 1px solid rgba(29,158,117,.12) !important;
@@ -223,13 +185,13 @@ button[kind="header"] { display: none !important; }
   background: rgba(29,158,117,.06) !important;
 }
 
-/* ── METRIC / SCORE PILLS ────────────────── */
+/* ── METRIC PILLS ─────────────────────── */
 .sp { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 50px; }
 .sp-h { background: rgba(29,158,117,.15); color: #4de8b4; border: 1px solid rgba(29,158,117,.3); }
 .sp-m { background: rgba(239,159,39,.12); color: #f5c263; border: 1px solid rgba(239,159,39,.25); }
 .sp-l { background: rgba(226,75,74,.12); color: #f08080; border: 1px solid rgba(226,75,74,.2); }
 
-/* ── TAGS ────────────────────────────────── */
+/* ── TAGS ─────────────────────────────── */
 .tag { display: inline-block; font-size: 11px; padding: 3px 9px; border-radius: 6px; font-weight: 500; margin: 2px 2px; }
 .tg { background: rgba(29,158,117,.14); color: #4de8b4; border: 1px solid rgba(29,158,117,.2); }
 .tb { background: rgba(56,138,221,.14); color: #7ab8f5; border: 1px solid rgba(56,138,221,.2); }
@@ -239,41 +201,37 @@ button[kind="header"] { display: none !important; }
 .tr { background: rgba(226,75,74,.12); color: #f08080; border: 1px solid rgba(226,75,74,.18); }
 .stat-b { font-size: 12px; padding: 4px 10px; border-radius: 50px; background: rgba(29,158,117,.1); color: #1D9E75; border: 1px solid rgba(29,158,117,.2); }
 
-/* ── RISK PILLS ──────────────────────────── */
+/* ── RISK PILLS ───────────────────────── */
 .risk-lo { display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:50px;background:rgba(29,158,117,.15);color:#4de8b4;border:1px solid rgba(29,158,117,.3); }
 .risk-me { display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:50px;background:rgba(239,159,39,.12);color:#f5c263;border:1px solid rgba(239,159,39,.2); }
 .risk-hi { display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:50px;background:rgba(226,75,74,.12);color:#f08080;border:1px solid rgba(226,75,74,.2); }
 
-/* ── PROGRESS BARS ───────────────────────── */
+/* ── PROGRESS BARS ────────────────────── */
 .bar-bg { background: rgba(29,158,117,.08); border-radius: 50px; height: 6px; overflow: hidden; }
-.bar    { background: linear-gradient(90deg,#1D9E75,#4de8b4); height: 100%; border-radius: 50px; transition: width .7s cubic-bezier(.22,1,.36,1); }
+.bar    { background: linear-gradient(90deg,#1D9E75,#4de8b4); height: 100%; border-radius: 50px; }
 .bar-a  { background: linear-gradient(90deg,#EF9F27,#f5c263); height: 100%; border-radius: 50px; }
 .bar-r  { background: linear-gradient(90deg,#E24B4A,#f08080); height: 100%; border-radius: 50px; }
 .bar-b  { background: linear-gradient(90deg,#378ADD,#7ab8f5); height: 100%; border-radius: 50px; }
 
-/* ── CANDIDATE ROW ───────────────────────── */
+/* ── CANDIDATE ROW ────────────────────── */
 .cand-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(29,158,117,.08); }
 .cand-row:last-child { border-bottom: none; }
 
-/* ── AVATAR ──────────────────────────────── */
+/* ── AVATAR ───────────────────────────── */
 .av { display:flex;align-items:center;justify-content:center;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;flex-shrink:0; }
 .av-g { background:rgba(29,158,117,.18);color:#4de8b4;border:1px solid rgba(29,158,117,.3); }
 .av-b { background:rgba(56,138,221,.18);color:#7ab8f5;border:1px solid rgba(56,138,221,.3); }
 .av-a { background:rgba(239,159,39,.18);color:#f5c263;border:1px solid rgba(239,159,39,.3); }
 .av-p { background:rgba(127,119,221,.18);color:#b3aeef;border:1px solid rgba(127,119,221,.3); }
 
-/* ── FORMULA ─────────────────────────────── */
+/* ── FORMULA ──────────────────────────── */
 .formula { font-size: 11px; color: #2a4a34; font-family: 'DM Mono', monospace; background: rgba(29,158,117,.04); border-radius: 8px; padding: 10px 12px; border: 1px solid rgba(29,158,117,.1); line-height: 1.8; }
 .hl { color: #4de8b4; }
 .num{ color: #7ab8f5; }
-
-/* ── NFT HEX ─────────────────────────────── */
 .nft-hex { font-family: 'DM Mono', monospace; color: #4de8b4; font-size: 12px; word-break: break-all; }
-
-/* ── DIVIDER ─────────────────────────────── */
 hr.div { border: none; border-top: 1px solid rgba(29,158,117,.1); margin: 14px 0; }
 
-/* ── WIZARD ──────────────────────────────── */
+/* ── WIZARD ───────────────────────────── */
 .wiz-track { display:flex;align-items:center;gap:0;margin:20px 0 24px; }
 .wiz-step  { display:flex;flex-direction:column;align-items:center;gap:6px;flex:1; }
 .wiz-dot   { width:32px;height:32px;border-radius:50%;background:rgba(29,158,117,.08);border:2px solid rgba(29,158,117,.2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#2a4a34;font-family:'Syne',sans-serif; }
@@ -282,7 +240,7 @@ hr.div { border: none; border-top: 1px solid rgba(29,158,117,.1); margin: 14px 0
 .wiz-line  { flex:1;height:2px;background:rgba(29,158,117,.1);margin: 0 -4px;position:relative;top:-12px; }
 .wiz-line.done { background:#1D9E75; }
 
-/* ── ANIMATIONS ──────────────────────────── */
+/* ── ANIMATIONS ───────────────────────── */
 @keyframes anim-up { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 @keyframes bounce   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
 .anim-up { animation: anim-up .4s cubic-bezier(.22,1,.36,1) both; }
@@ -290,45 +248,38 @@ hr.div { border: none; border-top: 1px solid rgba(29,158,117,.1); margin: 14px 0
 .d3 { animation-delay:.2s; }
 .d4 { animation-delay:.3s; }
 
-/* ── EXPANDER ────────────────────────────── */
+/* ── EXPANDER ─────────────────────────── */
 [data-testid="stExpander"] {
   background: rgba(8,20,42,.7) !important;
   border: 1px solid rgba(29,158,117,.12) !important;
   border-radius: 10px !important;
 }
 
-/* ── SCROLLBAR ───────────────────────────── */
+/* ── SCROLLBAR ────────────────────────── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(29,158,117,.2); border-radius: 4px; }
 
-/* ── SUCCESS/INFO/ERROR MSGS ─────────────── */
-[data-testid="stAlert"] { border-radius: 10px !important; }
-/* ── SCROLLBAR ───────────────────────────── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(29,158,117,.2); border-radius: 4px; }
-
-/* ── ALERTS ──────────────────────────────── */
+/* ── ALERTS ───────────────────────────── */
 [data-testid="stAlert"] { border-radius: 10px !important; }
 </style>
 """
 
-NAV_CSS = ""  # kept for import compatibility
+NAV_CSS = ""
 
 SIDEBAR_BRAND = """
-<div style='padding:18px 14px 12px;border-bottom:1px solid rgba(29,158,117,.12);
-            background:#030b16;position:sticky;top:0;z-index:999;'>
-  <div style='display:flex;align-items:center;gap:10px;'>
-    <div style='width:34px;height:34px;background:linear-gradient(135deg,#1D9E75,#4de8b4);
+<div style="padding:16px 14px 12px;border-bottom:1px solid rgba(29,158,117,.12);
+            background:#030b16;position:sticky;top:0;z-index:999;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="width:34px;height:34px;background:linear-gradient(135deg,#1D9E75,#4de8b4);
                 border-radius:9px;display:flex;align-items:center;justify-content:center;
-                font-size:16px;color:#030b16;font-weight:800;font-family:Syne,sans-serif;flex-shrink:0;'>⬡</div>
+                font-size:18px;color:#030b16;font-weight:800;flex-shrink:0;">⬡</div>
     <div>
-      <div style='font-family:Syne,sans-serif;font-size:16px;font-weight:800;
+      <div style="font-family:Syne,sans-serif;font-size:17px;font-weight:800;
                   background:linear-gradient(90deg,#1D9E75,#4de8b4);
                   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-                  line-height:1.1;'>Connectra</div>
-      <div style='font-size:10px;color:#1D9E75;letter-spacing:.08em;'>ONCHAIN TALENT</div>
+                  line-height:1.1;">Connectra</div>
+      <div style="font-size:10px;color:#1D9E75;letter-spacing:.08em;">ONCHAIN TALENT</div>
     </div>
   </div>
 </div>
