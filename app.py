@@ -15,11 +15,10 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-from styles import GLOBAL_CSS, SIDEBAR_BRAND, NAV_CSS
+from styles import GLOBAL_CSS, SIDEBAR_BRAND
 from data.sqlite_db import init_db, seed_if_empty
 
 st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
-st.markdown(NAV_CSS, unsafe_allow_html=True)
 
 # ── Bootstrap DB ───────────────────────────────────────────────────────────────
 init_db()
