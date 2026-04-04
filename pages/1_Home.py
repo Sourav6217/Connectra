@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import streamlit as st
 import sys, os, pathlib
 
@@ -84,7 +85,8 @@ with col_t:
     if st.button("🚀 Enter as Talent", use_container_width=True, key="btn_talent"):
         st.session_state.user_role = "talent"
         st.session_state.prev_page = "home"
-        st.session_state.current_page = "dashboard"; st.rerun()
+        st.session_state.current_page = "dashboard"
+        st.rerun()
 
 with col_e:
     st.markdown("""
@@ -109,7 +111,8 @@ with col_e:
     if st.button("🏢 Enter as Employer", use_container_width=True, key="btn_employer"):
         st.session_state.user_role = "employer"
         st.session_state.prev_page = "home"
-        st.session_state.current_page = "postjob"; st.rerun()
+        st.session_state.current_page = "postjob"
+        st.rerun()
 
 st.markdown("<br>", unsafe_allow_html=True)
 
