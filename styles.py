@@ -288,48 +288,54 @@ hr.div { border: none; border-top: 1px solid rgba(29,158,117,.1); margin: 14px 0
 /* ── SUCCESS/INFO/ERROR MSGS ─────────────── */
 [data-testid="stAlert"] { border-radius: 10px !important; }
 
-/* ── Custom nav item wrapper (decorative, sits behind button) ── */
-.snav-item, .snav-active {
+/* ── Nav decorative row (icon+label+arrow visual) hidden behind button ── */
+.snav-btn, .snav-btn-active {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 9px 14px;
-  margin: 2px 8px;
-  border-radius: 10px;
+  margin: 2px 8px 0 8px;
+  border-radius: 10px 10px 0 0;
   font-size: 13px;
   font-family: 'DM Sans', sans-serif;
-  position: relative;
   pointer-events: none;
+  position: relative;
 }
-.snav-item { color: #4a6a84; background: transparent; }
-.snav-active { color: #4de8b4; background: rgba(29,158,117,.13); border: 1px solid rgba(29,158,117,.25); font-weight: 600; }
+.snav-btn { color: #4a6a84; background: transparent; }
+.snav-btn-active { color: #4de8b4; background: rgba(29,158,117,.13);
+  border: 1px solid rgba(29,158,117,.25); border-bottom: none; font-weight: 600; }
 .snav-icon { display: flex; align-items: center; flex-shrink: 0; opacity: 0.75; }
-.snav-active .snav-icon { opacity: 1; }
+.snav-btn-active .snav-icon { opacity: 1; }
 .snav-label { flex: 1; }
 .snav-arrow { display: flex; align-items: center; opacity: 0.35; }
-.snav-active .snav-arrow { opacity: 0.9; color: #4de8b4; }
+.snav-btn-active .snav-arrow { opacity: 0.9; }
 
-/* ── Sidebar nav buttons: styled to show content, overlaid over the snav div ── */
+/* ── Sidebar nav buttons: transparent overlay, sized to cover the snav div ── */
 [data-testid="stSidebar"] .stButton > button {
   background: transparent !important;
   border: none !important;
   color: transparent !important;
   padding: 0 !important;
-  margin-top: -42px !important;
-  height: 42px !important;
+  margin-top: -39px !important;
+  height: 39px !important;
   width: 100% !important;
   cursor: pointer !important;
   border-radius: 10px !important;
   box-shadow: none !important;
   font-size: 1px !important;
   position: relative !important;
-  z-index: 2 !important;
+  z-index: 5 !important;
+  display: block !important;
 }
 [data-testid="stSidebar"] .stButton > button:hover {
-  background: rgba(29,158,117,.08) !important;
+  background: rgba(29,158,117,.07) !important;
+  border: none !important;
 }
 [data-testid="stSidebar"] .stButton > button:focus {
-  box-shadow: none !important; outline: none !important;
+  box-shadow: none !important; outline: none !important; border: none !important;
+}
+[data-testid="stSidebar"] .stButton > button:active {
+  background: rgba(29,158,117,.15) !important;
 }
 
 /* ── Role radio toggle ── */
@@ -350,13 +356,19 @@ hr.div { border: none; border-top: 1px solid rgba(29,158,117,.1); margin: 14px 0
   font-weight: 600 !important;
 }
 
-/* ── Wallet/Reset buttons keep normal styling ── */
-[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:has(button[kind="secondary"]) .stButton > button {
+/* ── Wallet/Reset/Connect buttons: restore normal styling ── */
+[data-testid="stSidebar"] .stButton > button[kind="secondary"],
+[data-testid="stSidebar"] div:has(> .stButton > button#connect_wallet) .stButton > button,
+[data-testid="stSidebar"] div:has(> .stButton > button#reset_data) .stButton > button {
   margin-top: 0 !important;
   height: auto !important;
   color: #4de8b4 !important;
   font-size: 13px !important;
   padding: 8px 18px !important;
+  background: rgba(29,158,117,.12) !important;
+  border: 1px solid rgba(29,158,117,.35) !important;
+  display: block !important;
+  z-index: 1 !important;
 }
 
 /* ── Back navigation button ─────────────────────────────── */

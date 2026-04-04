@@ -120,6 +120,11 @@ def init_db():
     # ── Migration: add new columns/tables to existing DBs ────────────────────
     migrations = [
         "ALTER TABLE talents ADD COLUMN test_score_bonus REAL DEFAULT 0",
+        "ALTER TABLE interviews ADD COLUMN scheduled_date TEXT",
+        "ALTER TABLE interviews ADD COLUMN scheduled_time TEXT",
+        "ALTER TABLE interviews ADD COLUMN notes TEXT",
+        "ALTER TABLE interviews ADD COLUMN created_at TEXT",
+        "ALTER TABLE interviews ADD COLUMN employer_wallet TEXT",
         """CREATE TABLE IF NOT EXISTS interviews (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             talent_wallet TEXT, job_id INTEGER, employer_wallet TEXT,

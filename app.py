@@ -70,19 +70,20 @@ def nav_item(page_key: str, label: str, icon_key: str):
 # ── Better approach: full custom nav with st.markdown links ────────────────────
 def render_nav_item(page_key: str, label: str, icon_key: str):
     active = st.session_state.current_page == page_key
-    cls = "snav-active" if active else "snav-item"
     icon_svg = ICONS.get(icon_key, "")
     chevron  = ICONS["chevron"]
     btn_key  = f"navbtn_{page_key}"
-    st.markdown(f"""
-<div class='{cls}' id='nav_{page_key}'>
-  <span class='snav-icon'>{icon_svg}</span>
-  <span class='snav-label'>{label}</span>
-  <span class='snav-arrow'>{chevron}</span>
-</div>
-""", unsafe_allow_html=True)
-    # Invisible button overlay for click (zero-width space label)
-    if st.button("\u200b", key=btn_key, use_container_width=True):
+    active_class = "snav-btn-active" if active else "snav-btn"
+    st.markdown(
+        f"<div class='{active_class}' id='nav_{page_key}'>"
+        f"<span class='snav-icon'>{icon_svg}</span>"
+        f"<span class='snav-label'>{label}</span>"
+        f"<span class='snav-arrow'>{chevron}</span>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
+    if st.button(label, key=btn_key, use_container_width=True, help=""):
+        st.session_state.prev_page = st.session_state.current_page
         st.session_state.current_page = page_key
         st.rerun()
 
