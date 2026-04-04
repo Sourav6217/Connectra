@@ -9,6 +9,16 @@ from utils.ui_components import html_bar
 
 st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
 
+# ── Back navigation ─────────────────────────────────────────────────────────
+def _back_button(label="← Back"):
+    if st.button(label, key="_back_btn"):
+        target = st.session_state.get("prev_page", "home")
+        st.session_state.prev_page = st.session_state.current_page
+        st.session_state.current_page = target
+        st.rerun()
+
+_back_button()
+
 wallet     = st.session_state.get("wallet", "0x742d35Cc6634C0532925a3b844Bc454e4438f44e")
 talent_df  = get_talent(wallet)
 jobs_df    = get_all_jobs()

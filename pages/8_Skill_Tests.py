@@ -7,6 +7,17 @@ from utils.matching import calculate_talent_score
 
 st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
 
+# ── Back navigation ─────────────────────────────────────────────────────────
+def _back_button(label="← Back"):
+    if not st.session_state.get("test_active", False):
+        if st.button(label, key="_back_btn"):
+            target = st.session_state.get("prev_page", "home")
+            st.session_state.prev_page = st.session_state.current_page
+            st.session_state.current_page = target
+            st.rerun()
+
+_back_button()
+
 wallet = st.session_state.get("wallet", "0x742d35Cc6634C0532925a3b844Bc454e4438f44e")
 
 # ── Question Bank ────────────────────────────────────────────────────────────
@@ -148,30 +159,35 @@ if not st.session_state.test_active:
             if prev is not None:
                 pct = float(prev["percentage"])
                 bar_col = "#1D9E75" if pct >= 70 else "#EF9F27" if pct >= 50 else "#E24B4A"
-                score_html = f"""
-                <div style='margin-top:10px;'>
-                  <div style='display:flex;justify-content:space-between;font-size:11px;color:#2a4a34;margin-bottom:4px;'>
-                    <span>Your score</span>
-                    <span style='color:{bar_col};font-weight:600;'>{pct:.0f}%</span>
-                  </div>
-                  <div class='bar-bg'><div class='bar' style='width:{pct}%;background:{bar_col};'></div></div>
-                </div>"""
+                score_html = (
+                    "<div style='margin-top:10px;'>"
+                    "<div style='display:flex;justify-content:space-between;font-size:11px;color:#8ba8c4;margin-bottom:4px;'>"
+                    "<span>Your score</span>"
+                    f"<span style='color:{bar_col};font-weight:600;'>{pct:.0f}%</span>"
+                    "</div>"
+                    "<div style='background:rgba(29,158,117,.08);border-radius:50px;height:6px;overflow:hidden;'>"
+                    f"<div style='width:{pct:.0f}%;height:100%;background:{bar_col};border-radius:50px;'></div>"
+                    "</div>"
+                    "</div>"
+                )
                 btn_label = "Retake Test"
                 btn_style = "secondary"
             else:
-                score_html = "<div style='font-size:12px;color:#2a4a34;margin-top:10px;'>Not attempted yet</div>"
+                score_html = "<div style='font-size:12px;color:#4a6a84;margin-top:10px;'>Not attempted yet</div>"
                 btn_label = "Start Test"
                 btn_style = "primary"
 
-            st.markdown(f"""
-            <div class='g-card' style='text-align:center;padding:18px 14px;min-height:150px;
-                 {"border-color:rgba(29,158,117,.4);" if skill in completed else ""}'>
-              <div style='font-size:24px;margin-bottom:8px;'>{SKILL_ICONS.get(skill,"📋")}</div>
-              <div style='font-family:Syne,sans-serif;font-size:14px;font-weight:700;color:#fff;'>{skill}</div>
-              <div style='font-size:11px;color:#4a6a84;margin-top:2px;'>5 questions · 3 min</div>
-              {score_html}
-            </div>
-            """, unsafe_allow_html=True)
+            border_extra = "border-color:rgba(29,158,117,.4);" if skill in completed else ""
+            skill_icon = SKILL_ICONS.get(skill, "📋")
+            st.markdown(
+                f"<div class='g-card' style='text-align:center;padding:18px 14px;min-height:150px;{border_extra}'>"
+                f"<div style='font-size:24px;margin-bottom:8px;'>{skill_icon}</div>"
+                f"<div style='font-family:Syne,sans-serif;font-size:14px;font-weight:700;color:#fff;'>{skill}</div>"
+                "<div style='font-size:11px;color:#4a6a84;margin-top:2px;'>5 questions · 3 min</div>"
+                f"{score_html}"
+                "</div>",
+                unsafe_allow_html=True,
+            )
 
             if st.button(btn_label, key=f"start_{skill}", use_container_width=True):
                 st.session_state.test_active = True

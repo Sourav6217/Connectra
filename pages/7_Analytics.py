@@ -10,6 +10,16 @@ from utils.ui_components import render_score_distribution
 
 st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
 
+# ── Back navigation ─────────────────────────────────────────────────────────
+def _back_button(label="← Back"):
+    if st.button(label, key="_back_btn"):
+        target = st.session_state.get("prev_page", "home")
+        st.session_state.prev_page = st.session_state.current_page
+        st.session_state.current_page = target
+        st.rerun()
+
+_back_button()
+
 talents_df = get_all_talents()
 jobs_df    = get_all_jobs()
 stats      = get_platform_stats()
@@ -171,7 +181,7 @@ with col_sc:
             colorscale="Teal",
             showscale=True,
             colorbar=dict(
-                title="Completion%",
+                title=dict(text="Completion%", font=dict(color="#4a6a84", size=9)),
                 tickfont=dict(color="#4a6a84", size=9),
             ),
             line=dict(color="rgba(4,13,26,.5)", width=0.5)

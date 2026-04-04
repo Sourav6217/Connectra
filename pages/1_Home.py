@@ -83,6 +83,7 @@ with col_t:
     """, unsafe_allow_html=True)
     if st.button("🚀 Enter as Talent", use_container_width=True, key="btn_talent"):
         st.session_state.user_role = "talent"
+        st.session_state.prev_page = "home"
         st.session_state.current_page = "dashboard"; st.rerun()
 
 with col_e:
@@ -107,7 +108,8 @@ with col_e:
     """, unsafe_allow_html=True)
     if st.button("🏢 Enter as Employer", use_container_width=True, key="btn_employer"):
         st.session_state.user_role = "employer"
-        st.session_state.current_page = "employer"; st.rerun()
+        st.session_state.prev_page = "home"
+        st.session_state.current_page = "postjob"; st.rerun()
 
 st.markdown("<br>", unsafe_allow_html=True)
 

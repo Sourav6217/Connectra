@@ -21,7 +21,7 @@ html, body, [data-testid="stAppViewContainer"] {
 [data-testid="collapsedControl"],
 button[kind="header"] { display: none !important; }
 
-/* ── PIN BRAND TO TOP OF SIDEBAR ──────────────── */
+/* ── SIDEBAR: brand pinned, content scrollable ── */
 [data-testid="stSidebar"] > div:first-child {
   display: flex !important;
   flex-direction: column !important;
@@ -29,7 +29,6 @@ button[kind="header"] { display: none !important; }
   overflow: hidden !important;
 }
 
-/* The inner scrollable container sits below the brand */
 [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
   display: flex !important;
   flex-direction: column !important;
@@ -38,22 +37,25 @@ button[kind="header"] { display: none !important; }
   padding-top: 0 !important;
 }
 
-/* Brand block - pinned, never scrolls */
+/* Brand block — pinned, never scrolls */
 [data-testid="stSidebar"] [data-testid="stSidebarContent"] > div:first-child {
   flex-shrink: 0 !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 10 !important;
+  background: #030b16 !important;
 }
 
-/* Nav + rest of sidebar - scrollable */
-[data-testid="stSidebarNav"] {
-  flex: 1 !important;
+/* Scrollable area below brand */
+[data-testid="stSidebar"] [data-testid="stSidebarContent"] > div:not(:first-child) {
+  flex: 1 1 auto !important;
   overflow-y: auto !important;
-  padding-bottom: 20px !important;
+  overflow-x: hidden !important;
+  padding-bottom: 24px !important;
 }
 
-/* Hide default sidebar scrollbar on outer container */
-[data-testid="stSidebar"] > div:first-child > div {
-  overflow: hidden !important;
-}
+/* Hide default sidebar nav */
+[data-testid="stSidebarNav"] { display: none !important; }
 
 /* ── SIDEBAR NAV ITEMS ──────────────────── */
 [data-testid="stSidebarNav"] a {
@@ -286,10 +288,7 @@ hr.div { border: none; border-top: 1px solid rgba(29,158,117,.1); margin: 14px 0
 /* ── SUCCESS/INFO/ERROR MSGS ─────────────── */
 [data-testid="stAlert"] { border-radius: 10px !important; }
 
-/* ── Hide default Streamlit page nav completely ── */
-[data-testid="stSidebarNav"] { display: none !important; }
-
-/* ── Custom nav item base ── */
+/* ── Custom nav item wrapper (decorative, sits behind button) ── */
 .snav-item, .snav-active {
   display: flex;
   align-items: center;
@@ -297,22 +296,20 @@ hr.div { border: none; border-top: 1px solid rgba(29,158,117,.1); margin: 14px 0
   padding: 9px 14px;
   margin: 2px 8px;
   border-radius: 10px;
-  cursor: pointer;
   font-size: 13px;
   font-family: 'DM Sans', sans-serif;
-  transition: all .15s ease;
   position: relative;
   pointer-events: none;
 }
 .snav-item { color: #4a6a84; background: transparent; }
-.snav-active { color: #4de8b4; background: rgba(29,158,117,.13); font-weight: 600; }
+.snav-active { color: #4de8b4; background: rgba(29,158,117,.13); border: 1px solid rgba(29,158,117,.25); font-weight: 600; }
 .snav-icon { display: flex; align-items: center; flex-shrink: 0; opacity: 0.75; }
 .snav-active .snav-icon { opacity: 1; }
 .snav-label { flex: 1; }
 .snav-arrow { display: flex; align-items: center; opacity: 0.35; }
-.snav-active .snav-arrow { opacity: 0.9; }
+.snav-active .snav-arrow { opacity: 0.9; color: #4de8b4; }
 
-/* ── Invisible overlay button ── */
+/* ── Sidebar nav buttons: styled to show content, overlaid over the snav div ── */
 [data-testid="stSidebar"] .stButton > button {
   background: transparent !important;
   border: none !important;
@@ -325,9 +322,11 @@ hr.div { border: none; border-top: 1px solid rgba(29,158,117,.1); margin: 14px 0
   border-radius: 10px !important;
   box-shadow: none !important;
   font-size: 1px !important;
+  position: relative !important;
+  z-index: 2 !important;
 }
 [data-testid="stSidebar"] .stButton > button:hover {
-  background: rgba(29,158,117,.06) !important;
+  background: rgba(29,158,117,.08) !important;
 }
 [data-testid="stSidebar"] .stButton > button:focus {
   box-shadow: none !important; outline: none !important;
@@ -358,6 +357,24 @@ hr.div { border: none; border-top: 1px solid rgba(29,158,117,.1); margin: 14px 0
   color: #4de8b4 !important;
   font-size: 13px !important;
   padding: 8px 18px !important;
+}
+
+/* ── Back navigation button ─────────────────────────────── */
+button[data-testid="baseButton-secondary"][kind="secondary"]:has(+ *),
+div:has(> button[key="_back_btn"]) .stButton > button,
+.stButton > button[kind="secondary"] {
+  background: transparent !important;
+  border: 1px solid rgba(29,158,117,.2) !important;
+  color: #4a6a84 !important;
+  font-size: 12px !important;
+  padding: 5px 14px !important;
+  border-radius: 8px !important;
+  margin-bottom: 12px !important;
+}
+.stButton > button[kind="secondary"]:hover {
+  background: rgba(29,158,117,.06) !important;
+  color: #c8d8e8 !important;
+  border-color: rgba(29,158,117,.4) !important;
 }
 </style>
 """

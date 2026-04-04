@@ -30,6 +30,7 @@ defaults = {
     "wallet":           "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
     "wallet_connected": False,
     "current_page":     "home",
+    "prev_page":        "home",
     "wiz_step":         1,
     "wiz_data":         {},
 }
@@ -80,8 +81,8 @@ def render_nav_item(page_key: str, label: str, icon_key: str):
   <span class='snav-arrow'>{chevron}</span>
 </div>
 """, unsafe_allow_html=True)
-    # Invisible button overlay for click
-    if st.button("​", key=btn_key, use_container_width=True):   # zero-width space label
+    # Invisible button overlay for click (zero-width space label)
+    if st.button("\u200b", key=btn_key, use_container_width=True):
         st.session_state.current_page = page_key
         st.rerun()
 

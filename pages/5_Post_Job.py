@@ -8,6 +8,16 @@ from utils.blockchain import simulate_job_post, short_hash
 
 st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
 
+# ── Back navigation ─────────────────────────────────────────────────────────
+def _back_button(label="← Back"):
+    if st.button(label, key="_back_btn"):
+        target = st.session_state.get("prev_page", "home")
+        st.session_state.prev_page = st.session_state.current_page
+        st.session_state.current_page = target
+        st.rerun()
+
+_back_button()
+
 SKILLS_ALL = [
     "Python","SQL","JavaScript","React","AWS","Docker","Excel","Power BI",
     "Machine Learning","Data Analysis","Java","Node.js","MongoDB","Git",
