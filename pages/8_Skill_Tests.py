@@ -154,14 +154,14 @@ if not st.session_state.test_active:
                     <span>Your score</span>
                     <span style='color:{bar_col};font-weight:600;'>{pct:.0f}%</span>
                   </div>
-                  <div class='bar-bg'><div class='bar' style='width:{pct}%;background:{bar_col};'></div></div>
+                  <div style='background:rgba(29,158,117,.08);border-radius:50px;height:6px;overflow:hidden;'>
+                    <div style='width:{pct:.1f}%;height:100%;background:{bar_col};border-radius:50px;'></div>
+                  </div>
                 </div>"""
                 btn_label = "Retake Test"
-                btn_style = "secondary"
             else:
                 score_html = "<div style='font-size:12px;color:#2a4a34;margin-top:10px;'>Not attempted yet</div>"
                 btn_label = "Start Test"
-                btn_style = "primary"
 
             st.markdown(f"""
             <div class='g-card' style='text-align:center;padding:18px 14px;min-height:150px;

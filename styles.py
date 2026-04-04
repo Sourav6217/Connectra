@@ -9,11 +9,11 @@ html, body, [data-testid="stAppViewContainer"] {
   font-family: 'DM Sans', sans-serif;
 }
 
-/* ── FORCE SIDEBAR ALWAYS OPEN ─────────── */
+/* ── SIDEBAR – always open, brand pinned, rest scrollable ──── */
 [data-testid="stSidebar"] {
-  min-width: 280px !important;
-  max-width: 280px !important;
-  width: 280px !important;
+  min-width: 268px !important;
+  max-width: 268px !important;
+  width: 268px !important;
   background: #030b16 !important;
   border-right: 1px solid rgba(29,158,117,.14) !important;
 }
@@ -21,78 +21,97 @@ html, body, [data-testid="stAppViewContainer"] {
 [data-testid="collapsedControl"],
 button[kind="header"] { display: none !important; }
 
-/* ── PIN BRAND TO TOP OF SIDEBAR ──────────────── */
-[data-testid="stSidebar"] > div:first-child {
-  display: flex !important;
-  flex-direction: column !important;
-  height: 100vh !important;
-  overflow: hidden !important;
-}
+/* Hide default Streamlit page nav */
+[data-testid="stSidebarNav"] { display: none !important; }
 
-/* The inner scrollable container sits below the brand */
+/* Brand block: sticky at top via CSS on the markdown element */
 [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
-  display: flex !important;
-  flex-direction: column !important;
-  height: 100% !important;
-  overflow: hidden !important;
   padding-top: 0 !important;
 }
 
-/* Brand block - pinned, never scrolls */
-[data-testid="stSidebar"] [data-testid="stSidebarContent"] > div:first-child {
-  flex-shrink: 0 !important;
-}
-
-/* Nav + rest of sidebar - scrollable */
-[data-testid="stSidebarNav"] {
-  flex: 1 !important;
-  overflow-y: auto !important;
-  padding-bottom: 20px !important;
-}
-
-/* Hide default sidebar scrollbar on outer container */
-[data-testid="stSidebar"] > div:first-child > div {
-  overflow: hidden !important;
-}
-
-/* ── SIDEBAR NAV ITEMS ──────────────────── */
-[data-testid="stSidebarNav"] a {
+/* ── NAV BUTTONS inside sidebar ────────────────────────────── */
+/* All sidebar buttons default: transparent ghost */
+[data-testid="stSidebar"] .stButton > button {
+  background: transparent !important;
+  border: none !important;
+  color: #4a6a84 !important;
+  border-radius: 10px !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  padding: 9px 14px !important;
+  margin: 1px 4px !important;
+  width: calc(100% - 8px) !important;
+  text-align: left !important;
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
-  padding: 9px 14px !important;
-  border-radius: 10px !important;
-  font-size: 13px !important;
-  color: #4a6a84 !important;
-  font-family: 'DM Sans', sans-serif !important;
-  text-decoration: none !important;
+  gap: 8px !important;
   transition: all .15s !important;
-  margin: 2px 8px !important;
-  position: relative !important;
+  justify-content: flex-start !important;
 }
-[data-testid="stSidebarNav"] a:hover {
-  color: #c8d8e8 !important;
+[data-testid="stSidebar"] .stButton > button:hover {
   background: rgba(29,158,117,.08) !important;
+  color: #c8d8e8 !important;
+  border: none !important;
 }
-[data-testid="stSidebarNav"] a[aria-current="page"] {
-  color: #4de8b4 !important;
+[data-testid="stSidebar"] .stButton > button:focus {
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+}
+/* Active nav button – key class applied via button label matching */
+[data-testid="stSidebar"] .stButton button[data-active="true"] {
   background: rgba(29,158,117,.14) !important;
+  color: #4de8b4 !important;
   font-weight: 600 !important;
 }
-[data-testid="stSidebarNav"] a::after {
-  content: '';
-  display: block;
-  width: 5px; height: 9px;
-  border-right: 1.5px solid currentColor;
-  border-top: 1.5px solid currentColor;
-  transform: rotate(45deg);
-  position: absolute; right: 14px; top: 50%; margin-top: -4.5px;
-  opacity: 0.4;
+/* Connect Wallet & Reset buttons keep normal styled look */
+[data-testid="stSidebar"] .stButton:has(> button[data-testid="connect_wallet"]) > button,
+[data-testid="stSidebar"] .stButton:has(> button[data-testid="reset_data"]) > button {
+  background: rgba(29,158,117,.1) !important;
+  border: 1px solid rgba(29,158,117,.3) !important;
+  color: #4de8b4 !important;
+  text-align: center !important;
+  justify-content: center !important;
+  margin: 2px 0 !important;
+  width: 100% !important;
 }
-[data-testid="stSidebarNav"] a[aria-current="page"]::after { opacity: 1; }
+
+/* ── Radio toggle ── */
+[data-testid="stSidebar"] [data-testid="stRadio"] > div { gap: 4px !important; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label {
+  font-size: 13px !important;
+  color: #4a6a84 !important;
+  padding: 5px 12px !important;
+  border-radius: 8px !important;
+  background: rgba(29,158,117,.05) !important;
+  border: 1px solid rgba(29,158,117,.12) !important;
+  cursor: pointer !important;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) {
+  color: #4de8b4 !important;
+  background: rgba(29,158,117,.15) !important;
+  border-color: rgba(29,158,117,.4) !important;
+  font-weight: 600 !important;
+}
 
 /* ── MAIN CONTENT PADDING ───────────────── */
-.main .block-container { padding: 28px 36px 60px !important; max-width: 100% !important; }
+.main .block-container { padding: 24px 36px 60px !important; max-width: 100% !important; }
+
+/* ── BACK BUTTON (main area) ─────────────── */
+.main .block-container > div:first-child .stButton > button {
+  background: transparent !important;
+  border: 1px solid rgba(29,158,117,.2) !important;
+  color: #4a6a84 !important;
+  font-size: 12px !important;
+  padding: 5px 12px !important;
+  margin-bottom: 8px !important;
+  border-radius: 8px !important;
+}
+.main .block-container > div:first-child .stButton > button:hover {
+  color: #4de8b4 !important;
+  border-color: rgba(29,158,117,.5) !important;
+}
 
 /* ── TYPOGRAPHY ──────────────────────────── */
 .s-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 4px; }
@@ -139,7 +158,7 @@ button[kind="header"] { display: none !important; }
   pointer-events: none;
 }
 
-/* ── BUTTONS ─────────────────────────────── */
+/* ── BUTTONS (main area) ─────────────────── */
 .stButton > button {
   background: rgba(29,158,117,.12) !important;
   border: 1px solid rgba(29,158,117,.35) !important;
@@ -285,89 +304,21 @@ hr.div { border: none; border-top: 1px solid rgba(29,158,117,.1); margin: 14px 0
 
 /* ── SUCCESS/INFO/ERROR MSGS ─────────────── */
 [data-testid="stAlert"] { border-radius: 10px !important; }
+/* ── SCROLLBAR ───────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(29,158,117,.2); border-radius: 4px; }
 
-/* ── Hide default Streamlit page nav completely ── */
-[data-testid="stSidebarNav"] { display: none !important; }
-
-/* ── Custom nav item base ── */
-.snav-item, .snav-active {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 14px;
-  margin: 2px 8px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
-  transition: all .15s ease;
-  position: relative;
-  pointer-events: none;
-}
-.snav-item { color: #4a6a84; background: transparent; }
-.snav-active { color: #4de8b4; background: rgba(29,158,117,.13); font-weight: 600; }
-.snav-icon { display: flex; align-items: center; flex-shrink: 0; opacity: 0.75; }
-.snav-active .snav-icon { opacity: 1; }
-.snav-label { flex: 1; }
-.snav-arrow { display: flex; align-items: center; opacity: 0.35; }
-.snav-active .snav-arrow { opacity: 0.9; }
-
-/* ── Invisible overlay button ── */
-[data-testid="stSidebar"] .stButton > button {
-  background: transparent !important;
-  border: none !important;
-  color: transparent !important;
-  padding: 0 !important;
-  margin-top: -42px !important;
-  height: 42px !important;
-  width: 100% !important;
-  cursor: pointer !important;
-  border-radius: 10px !important;
-  box-shadow: none !important;
-  font-size: 1px !important;
-}
-[data-testid="stSidebar"] .stButton > button:hover {
-  background: rgba(29,158,117,.06) !important;
-}
-[data-testid="stSidebar"] .stButton > button:focus {
-  box-shadow: none !important; outline: none !important;
-}
-
-/* ── Role radio toggle ── */
-[data-testid="stSidebar"] [data-testid="stRadio"] > div { gap: 6px !important; }
-[data-testid="stSidebar"] [data-testid="stRadio"] label {
-  font-size: 13px !important;
-  color: #4a6a84 !important;
-  padding: 5px 14px !important;
-  border-radius: 8px !important;
-  background: rgba(29,158,117,.05) !important;
-  border: 1px solid rgba(29,158,117,.12) !important;
-  cursor: pointer !important;
-}
-[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) {
-  color: #4de8b4 !important;
-  background: rgba(29,158,117,.15) !important;
-  border-color: rgba(29,158,117,.4) !important;
-  font-weight: 600 !important;
-}
-
-/* ── Wallet/Reset buttons keep normal styling ── */
-[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] > div:has(button[kind="secondary"]) .stButton > button {
-  margin-top: 0 !important;
-  height: auto !important;
-  color: #4de8b4 !important;
-  font-size: 13px !important;
-  padding: 8px 18px !important;
-}
+/* ── ALERTS ──────────────────────────────── */
+[data-testid="stAlert"] { border-radius: 10px !important; }
 </style>
 """
 
-# Alias so app.py can import NAV_CSS separately if needed (kept for compatibility)
-NAV_CSS = ""   # now merged into GLOBAL_CSS above
+NAV_CSS = ""  # kept for import compatibility
 
 SIDEBAR_BRAND = """
-<div style='padding:20px 16px 14px;border-bottom:1px solid rgba(29,158,117,.12);
-            background:#030b16;'>
+<div style='padding:18px 14px 12px;border-bottom:1px solid rgba(29,158,117,.12);
+            background:#030b16;position:sticky;top:0;z-index:999;'>
   <div style='display:flex;align-items:center;gap:10px;'>
     <div style='width:34px;height:34px;background:linear-gradient(135deg,#1D9E75,#4de8b4);
                 border-radius:9px;display:flex;align-items:center;justify-content:center;
@@ -382,5 +333,3 @@ SIDEBAR_BRAND = """
   </div>
 </div>
 """
-
-
