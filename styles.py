@@ -305,3 +305,102 @@ SIDEBAR_BRAND = """
   </div>
 </div>
 """
+
+NAV_CSS = """
+<style>
+/* ── Hide default Streamlit page nav completely ── */
+[data-testid="stSidebarNav"] { display: none !important; }
+
+/* ── Custom nav item base ── */
+.snav-item, .snav-active {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  margin: 2px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  transition: all .15s ease;
+  position: relative;
+  pointer-events: none;   /* clicks handled by invisible st.button below */
+}
+.snav-item {
+  color: #4a6a84;
+  background: transparent;
+}
+.snav-active {
+  color: #4de8b4;
+  background: rgba(29,158,117,.13);
+  font-weight: 600;
+}
+.snav-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+.snav-active .snav-icon { opacity: 1; }
+.snav-label { flex: 1; }
+.snav-arrow {
+  display: flex;
+  align-items: center;
+  opacity: 0.35;
+}
+.snav-active .snav-arrow { opacity: 0.9; }
+
+/* ── Invisible overlay button sits on top of the nav-item div ── */
+/* We push the button up to overlap the preceding markdown div   */
+[data-testid="stSidebar"] .stButton > button {
+  background: transparent !important;
+  border: none !important;
+  color: transparent !important;
+  padding: 0 !important;
+  margin-top: -42px !important;   /* pull up to overlap snav div */
+  height: 42px !important;
+  width: 100% !important;
+  cursor: pointer !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  font-size: 1px !important;
+}
+[data-testid="stSidebar"] .stButton > button:hover {
+  background: rgba(29,158,117,.06) !important;
+}
+[data-testid="stSidebar"] .stButton > button:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* ── Radio toggle ── */
+[data-testid="stSidebar"] [data-testid="stRadio"] > div {
+  gap: 6px !important;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] label {
+  font-size: 13px !important;
+  color: #4a6a84 !important;
+  padding: 5px 14px !important;
+  border-radius: 8px !important;
+  background: rgba(29,158,117,.05) !important;
+  border: 1px solid rgba(29,158,117,.12) !important;
+  cursor: pointer !important;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) {
+  color: #4de8b4 !important;
+  background: rgba(29,158,117,.15) !important;
+  border-color: rgba(29,158,117,.4) !important;
+  font-weight: 600 !important;
+}
+
+/* ── Connect/Reset buttons in sidebar ── */
+[data-testid="stSidebar"] .stButton#connect_wallet > button,
+[data-testid="stSidebar"] .stButton#reset_data > button {
+  margin-top: 0 !important;
+  height: auto !important;
+  color: #4de8b4 !important;
+  font-size: 13px !important;
+  padding: 8px 18px !important;
+}
+</style>
+"""

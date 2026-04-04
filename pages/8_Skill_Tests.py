@@ -1,6 +1,6 @@
 import streamlit as st
-import sys, os, time
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+import sys, os, pathlib, time
+
 from styles import GLOBAL_CSS
 from data.sqlite_db import get_skill_test_results, upsert_skill_test_result
 from utils.matching import calculate_talent_score

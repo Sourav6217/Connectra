@@ -1,6 +1,6 @@
 import streamlit as st
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+import sys, os, pathlib
+
 from styles import GLOBAL_CSS
 from data.sqlite_db import get_platform_stats
 
@@ -83,7 +83,7 @@ with col_t:
     """, unsafe_allow_html=True)
     if st.button("🚀 Enter as Talent", use_container_width=True, key="btn_talent"):
         st.session_state.user_role = "talent"
-        st.switch_page("pages/3_Talent_Dashboard.py")
+        st.session_state.current_page = "dashboard"; st.rerun()
 
 with col_e:
     st.markdown("""
@@ -107,7 +107,7 @@ with col_e:
     """, unsafe_allow_html=True)
     if st.button("🏢 Enter as Employer", use_container_width=True, key="btn_employer"):
         st.session_state.user_role = "employer"
-        st.switch_page("pages/6_Employer_Dashboard.py")
+        st.session_state.current_page = "employer"; st.rerun()
 
 st.markdown("<br>", unsafe_allow_html=True)
 

@@ -2,7 +2,7 @@ import streamlit as st
 import plotly.graph_objects as go
 import plotly.express as px
 import json, sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 from styles import GLOBAL_CSS
 from data.sqlite_db import get_all_talents, get_all_jobs, get_platform_stats
 from utils.matching import rank_talents_for_job

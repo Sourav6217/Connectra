@@ -1,6 +1,6 @@
 import streamlit as st
 import json, sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 from styles import GLOBAL_CSS
 from data.sqlite_db import get_talent, get_all_jobs, insert_application
 from utils.matching import calculate_match, get_breakdown, get_success_prob, score_class
@@ -32,7 +32,7 @@ if not has_profile:
     </div>
     """, unsafe_allow_html=True)
     if st.button("Create Profile First"):
-        st.switch_page("pages/2_Create_Profile.py")
+        st.session_state.current_page = "profile"; st.rerun()
 
 if jobs_df.empty:
     st.info("No jobs posted yet.")
@@ -243,7 +243,7 @@ with col_action:
                 st.warning("Already applied to this job.")
     else:
         if st.button("Create Profile to Apply", use_container_width=True):
-            st.switch_page("pages/2_Create_Profile.py")
+            st.session_state.current_page = "profile"; st.rerun()
 
 # Other recommended gigs
 st.markdown("<br>", unsafe_allow_html=True)

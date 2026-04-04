@@ -1,7 +1,7 @@
 import streamlit as st
 import json
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+import sys, os, pathlib
+
 from styles import GLOBAL_CSS
 from data.sqlite_db import upsert_talent, update_nft
 from utils.blockchain import mint_profile_nft
@@ -378,4 +378,4 @@ elif step == 4:
             st.session_state.wiz_data = {}
 
             import time; time.sleep(1.5)
-            st.switch_page("pages/3_Talent_Dashboard.py")
+            st.session_state.current_page = "dashboard"; st.rerun()

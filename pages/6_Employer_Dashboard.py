@@ -1,7 +1,7 @@
 import streamlit as st
 import json, sys, os
 from datetime import date, timedelta
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 from styles import GLOBAL_CSS
 from data.sqlite_db import (
     get_all_jobs, get_all_talents, get_applications_for_job,
@@ -34,7 +34,7 @@ if jobs_df.empty:
 </div>
 """, unsafe_allow_html=True)
     if st.button("Post a Job"):
-        st.switch_page("pages/5_Post_Job.py")
+        st.session_state.current_page = "postjob"; st.rerun()
     st.stop()
 
 tabs = st.tabs(["Top Candidates", "My Jobs", "Leaderboard", "Hire Flow", "Hiring History"])

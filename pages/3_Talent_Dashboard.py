@@ -1,7 +1,7 @@
 import streamlit as st
 import plotly.graph_objects as go
 import json, sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 from styles import GLOBAL_CSS
 from data.sqlite_db import get_talent, get_applications_for_talent, get_all_jobs, get_skill_test_results, get_interviews_for_talent
 from utils.matching import calculate_match, get_breakdown, get_risk_level, score_class, calculate_talent_score
@@ -24,7 +24,7 @@ if df.empty:
 </div>
 """, unsafe_allow_html=True)
     if st.button("Create Your Profile"):
-        st.switch_page("pages/2_Create_Profile.py")
+        st.session_state.current_page = "profile"; st.rerun()
     st.stop()
 
 row = df.iloc[0]
@@ -258,7 +258,7 @@ with tabs[2]:
 </div>
 """, unsafe_allow_html=True)
         if st.button("Mint My NFT", key="mint_redirect"):
-            st.switch_page("pages/2_Create_Profile.py")
+            st.session_state.current_page = "profile"; st.rerun()
 
 
 # ════════════════════════════════════════════════
@@ -407,7 +407,7 @@ with tabs[4]:
 """, unsafe_allow_html=True)
 
     if st.button("Take / Retake Tests", use_container_width=False):
-        st.switch_page("pages/8_Skill_Tests.py")
+        st.session_state.current_page = "skilltest"; st.rerun()
 
 
 # ════════════════════════════════════════════════

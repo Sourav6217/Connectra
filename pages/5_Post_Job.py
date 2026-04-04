@@ -1,6 +1,6 @@
 import streamlit as st
 import json, sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 from styles import GLOBAL_CSS
 from data.sqlite_db import get_all_talents, insert_job
 from utils.matching import rank_talents_for_job
@@ -186,4 +186,4 @@ if post_clicked:
         </div>
         """, unsafe_allow_html=True)
         import time; time.sleep(1.2)
-        st.switch_page("pages/6_Employer_Dashboard.py")
+        st.session_state.current_page = "employer"; st.rerun()
