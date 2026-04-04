@@ -1,11 +1,19 @@
 import json
 
-
 WEIGHTS = {
     "skill":      0.45,
     "experience": 0.25,
     "rating":     0.20,
     "completion": 0.10,
+}
+
+# Talent score weights (different from job match)
+TALENT_WEIGHTS = {
+    "skill":      0.28,
+    "experience": 0.28,
+    "rating":     0.24,
+    "completion": 0.10,
+    "test_bonus": 0.10,   # skill test scores can add up to 10 pts
 }
 
 
@@ -19,7 +27,7 @@ def _parse_skills(val) -> list:
 
 
 def calculate_match(talent_row, job_row) -> float:
-    """Return 0-100 match score."""
+    """Return 0-100 job match score."""
     talent_skills = _parse_skills(talent_row["skills"])
     job_skills    = _parse_skills(job_row["required_skills"])
 
@@ -44,8 +52,31 @@ def calculate_match(talent_row, job_row) -> float:
     return round(raw * 100, 1)
 
 
+def calculate_talent_score(talent_row) -> float:
+    """Return 0-100 overall talent score including skill test bonus."""
+    try:
+        skills = _parse_skills(talent_row["skills"])
+    except Exception:
+        skills = []
+
+    skill_s  = min(len(skills) / 8, 1.0) * 100
+    exp_s    = min(talent_row["years_exp"] / 10, 1.0) * 100
+    rat_s    = float(talent_row["rating"]) / 5.0 * 100
+    comp_s   = float(talent_row["completion_rate"])
+    test_b   = float(talent_row.get("test_score_bonus", 0))  # already 0-10
+
+    raw = (
+        TALENT_WEIGHTS["skill"]      * skill_s +
+        TALENT_WEIGHTS["experience"] * exp_s   +
+        TALENT_WEIGHTS["rating"]     * rat_s   +
+        TALENT_WEIGHTS["completion"] * comp_s  +
+        TALENT_WEIGHTS["test_bonus"] * test_b * 10   # normalize to 0-100 scale
+    )
+    return round(min(raw, 100), 1)
+
+
 def get_breakdown(talent_row, job_row) -> dict:
-    """Return individual factor scores (0-100)."""
+    """Return individual factor scores (0-100) for job match."""
     talent_skills = _parse_skills(talent_row["skills"])
     job_skills    = _parse_skills(job_row["required_skills"])
 
@@ -58,7 +89,7 @@ def get_breakdown(talent_row, job_row) -> dict:
     exp_required = job_row.get("experience_required", 3)
     exp_score    = round(min(talent_row["years_exp"] / max(exp_required, 1), 1.0) * 100, 1)
     rating_score = round(talent_row["rating"] / 5.0 * 100, 1)
-    comp_score   = round(talent_row["completion_rate"], 1)
+    comp_score   = round(float(talent_row["completion_rate"]), 1)
 
     return {
         "Skill Match":      skill_match,
@@ -68,23 +99,20 @@ def get_breakdown(talent_row, job_row) -> dict:
     }
 
 
-def get_success_prob(match_score: float) -> tuple[float, str]:
+def get_success_prob(match_score: float) -> tuple:
     """Returns (probability %, emoji) based on match score."""
     if match_score >= 80:
-        prob = round(match_score * 0.95, 1)
-        return prob, "🟢"
+        return round(match_score * 0.95, 1), "🟢"
     elif match_score >= 65:
-        prob = round(match_score * 0.88, 1)
-        return prob, "🟡"
+        return round(match_score * 0.88, 1), "🟡"
     else:
-        prob = round(match_score * 0.78, 1)
-        return prob, "🔴"
+        return round(match_score * 0.78, 1), "🔴"
 
 
-def get_risk_level(talent_row) -> tuple[str, str]:
+def get_risk_level(talent_row) -> tuple:
     """Returns (label, css_class)."""
-    comp  = talent_row["completion_rate"]
-    projs = talent_row["projects"]
+    comp  = float(talent_row["completion_rate"])
+    projs = int(talent_row["projects"])
 
     if comp < 65:
         return "High Risk", "risk-hi"

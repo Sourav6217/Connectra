@@ -3,6 +3,7 @@ import random
 import json
 import sqlite3
 import os
+from pathlib import Path
 
 try:
     from faker import Faker
@@ -53,6 +54,7 @@ def _fake_name():
         return fake.name()
     return random.choice(NAMES)
 
+
 def _fake_para():
     sentences = [
         "We are building next-generation financial infrastructure using cutting-edge technology.",
@@ -92,6 +94,7 @@ def generate_talents(n=80):
             "nft_tx_hash": f"0x{random.randint(10**20,10**30):064x}" if random.random() > 0.4 else None,
             "availability": random.choice(["Available","Part-time","Not Available"]),
             "hourly_rate": random.randint(15, 80),
+            "test_score_bonus": round(random.uniform(0, 8), 1) if random.random() > 0.5 else 0,
         })
     return pd.DataFrame(data)
 
@@ -119,8 +122,12 @@ def generate_jobs(n=30):
     return pd.DataFrame(data)
 
 
-def seed_database(db_path="data/talents.db"):
-    os.makedirs("data", exist_ok=True)
+def seed_database(db_path=None):
+    if db_path is None:
+        _base = Path(__file__).resolve().parent.parent
+        db_path = str(_base / "data" / "talents.db")
+
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
     conn = sqlite3.connect(db_path)
     talents_df = generate_talents(80)
     jobs_df = generate_jobs(30)
