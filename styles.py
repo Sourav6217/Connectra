@@ -21,6 +21,40 @@ html, body, [data-testid="stAppViewContainer"] {
 [data-testid="collapsedControl"],
 button[kind="header"] { display: none !important; }
 
+/* ── PIN BRAND TO TOP OF SIDEBAR ──────────────── */
+[data-testid="stSidebar"] > div:first-child {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+/* The inner scrollable container sits below the brand */
+[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  padding-top: 0 !important;
+}
+
+/* Brand block - pinned, never scrolls */
+[data-testid="stSidebar"] [data-testid="stSidebarContent"] > div:first-child {
+  flex-shrink: 0 !important;
+}
+
+/* Nav + rest of sidebar - scrollable */
+[data-testid="stSidebarNav"] {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding-bottom: 20px !important;
+}
+
+/* Hide default sidebar scrollbar on outer container */
+[data-testid="stSidebar"] > div:first-child > div {
+  overflow: hidden !important;
+}
+
 /* ── SIDEBAR NAV ITEMS ──────────────────── */
 [data-testid="stSidebarNav"] a {
   display: flex !important;
@@ -256,11 +290,11 @@ hr.div { border: none; border-top: 1px solid rgba(29,158,117,.1); margin: 14px 0
 
 SIDEBAR_BRAND = """
 <div style='padding:20px 16px 14px;border-bottom:1px solid rgba(29,158,117,.12);
-            position:sticky;top:0;background:#030b16;z-index:100;'>
+            background:#030b16;'>
   <div style='display:flex;align-items:center;gap:10px;'>
     <div style='width:34px;height:34px;background:linear-gradient(135deg,#1D9E75,#4de8b4);
                 border-radius:9px;display:flex;align-items:center;justify-content:center;
-                font-size:16px;color:#030b16;font-weight:800;font-family:Syne,sans-serif;'>⬡</div>
+                font-size:16px;color:#030b16;font-weight:800;font-family:Syne,sans-serif;flex-shrink:0;'>⬡</div>
     <div>
       <div style='font-family:Syne,sans-serif;font-size:16px;font-weight:800;
                   background:linear-gradient(90deg,#1D9E75,#4de8b4);

@@ -10,7 +10,19 @@ DB_PATH = str(_BASE / "data" / "talents.db")
 
 def get_connection():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    return sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA journal_mode=WAL")
+    return conn
+
+
+def _safe_read_sql(query: str, conn, params=None) -> pd.DataFrame:
+    """Run pd.read_sql safely — returns empty DataFrame if table doesn't exist yet."""
+    try:
+        if params:
+            return pd.read_sql(query, conn, params=params)
+        return pd.read_sql(query, conn)
+    except Exception:
+        return pd.DataFrame()
 
 
 def init_db():
@@ -105,11 +117,46 @@ def init_db():
         );
     """)
 
-    # Add test_score_bonus column to talents if it doesn't exist (migration)
-    try:
-        c.execute("ALTER TABLE talents ADD COLUMN test_score_bonus REAL DEFAULT 0")
-    except Exception:
-        pass
+    # ── Migration: add new columns/tables to existing DBs ────────────────────
+    migrations = [
+        "ALTER TABLE talents ADD COLUMN test_score_bonus REAL DEFAULT 0",
+        """CREATE TABLE IF NOT EXISTS interviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            talent_wallet TEXT, job_id INTEGER, employer_wallet TEXT,
+            scheduled_date TEXT, scheduled_time TEXT,
+            status TEXT DEFAULT 'Scheduled', notes TEXT, created_at TEXT,
+            FOREIGN KEY(talent_wallet) REFERENCES talents(wallet_address),
+            FOREIGN KEY(job_id) REFERENCES jobs(job_id)
+        )""",
+        """CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            interview_id INTEGER, sender_wallet TEXT, sender_role TEXT,
+            message TEXT, sent_at TEXT,
+            FOREIGN KEY(interview_id) REFERENCES interviews(id)
+        )""",
+        """CREATE TABLE IF NOT EXISTS hiring_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            employer_wallet TEXT, talent_wallet TEXT, job_id INTEGER,
+            job_title TEXT, company TEXT, amount_paid_usdc INTEGER,
+            skills_used TEXT, start_date TEXT, end_date TEXT,
+            status TEXT DEFAULT 'Ongoing', employer_rating REAL DEFAULT NULL,
+            employer_feedback TEXT, tx_hash TEXT,
+            FOREIGN KEY(talent_wallet) REFERENCES talents(wallet_address),
+            FOREIGN KEY(job_id) REFERENCES jobs(job_id)
+        )""",
+        """CREATE TABLE IF NOT EXISTS skill_test_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            talent_wallet TEXT, skill_name TEXT, score INTEGER,
+            max_score INTEGER, percentage REAL, taken_at TEXT,
+            UNIQUE(talent_wallet, skill_name),
+            FOREIGN KEY(talent_wallet) REFERENCES talents(wallet_address)
+        )""",
+    ]
+    for sql in migrations:
+        try:
+            c.execute(sql)
+        except Exception:
+            pass  # column/table already exists
 
     conn.commit()
     conn.close()
@@ -140,14 +187,14 @@ def _run_seed():
 
 def get_talent(wallet: str) -> pd.DataFrame:
     conn = get_connection()
-    df = pd.read_sql("SELECT * FROM talents WHERE wallet_address = ?", conn, params=(wallet,))
+    df = _safe_read_sql("SELECT * FROM talents WHERE wallet_address = ?", conn, params=(wallet,))
     conn.close()
     return df
 
 
 def get_all_talents() -> pd.DataFrame:
     conn = get_connection()
-    df = pd.read_sql("SELECT * FROM talents", conn)
+    df = _safe_read_sql("SELECT * FROM talents", conn)
     conn.close()
     return df
 
@@ -182,7 +229,7 @@ def update_nft(wallet: str, token_id: str, tx_hash: str):
 def update_talent_test_bonus(wallet: str):
     """Recalculate and update test_score_bonus from all skill test results."""
     conn = get_connection()
-    results = pd.read_sql(
+    results = _safe_read_sql(
         "SELECT percentage FROM skill_test_results WHERE talent_wallet=?",
         conn, params=(wallet,)
     )
@@ -199,7 +246,7 @@ def update_talent_test_bonus(wallet: str):
 
 def get_all_jobs() -> pd.DataFrame:
     conn = get_connection()
-    df = pd.read_sql("SELECT * FROM jobs WHERE status='Open'", conn)
+    df = _safe_read_sql("SELECT * FROM jobs WHERE status='Open'", conn)
     conn.close()
     return df
 
@@ -226,7 +273,7 @@ def insert_job(row: dict) -> int:
 
 def get_applications_for_talent(wallet: str) -> pd.DataFrame:
     conn = get_connection()
-    df = pd.read_sql(
+    df = _safe_read_sql(
         """SELECT a.*, j.title, j.company, j.budget_usdc
            FROM applications a JOIN jobs j ON a.job_id = j.job_id
            WHERE a.talent_wallet = ? ORDER BY a.id DESC""",
@@ -238,7 +285,7 @@ def get_applications_for_talent(wallet: str) -> pd.DataFrame:
 
 def get_applications_for_job(job_id: int) -> pd.DataFrame:
     conn = get_connection()
-    df = pd.read_sql(
+    df = _safe_read_sql(
         """SELECT a.*, t.name, t.role, t.skills, t.rating, t.completion_rate,
                   t.nft_token_id, t.years_exp, t.test_score_bonus
            FROM applications a JOIN talents t ON a.talent_wallet = t.wallet_address
@@ -252,7 +299,7 @@ def get_applications_for_job(job_id: int) -> pd.DataFrame:
 def insert_application(talent_wallet: str, job_id: int, match_score: float, tx_hash: str = None):
     from datetime import date
     conn = get_connection()
-    existing = pd.read_sql(
+    existing = _safe_read_sql(
         "SELECT id FROM applications WHERE talent_wallet=? AND job_id=?",
         conn, params=(talent_wallet, job_id)
     )
@@ -301,7 +348,7 @@ def insert_interview(talent_wallet: str, job_id: int, employer_wallet: str,
 
 def get_interviews_for_talent(wallet: str) -> pd.DataFrame:
     conn = get_connection()
-    df = pd.read_sql(
+    df = _safe_read_sql(
         """SELECT i.*, j.title, j.company
            FROM interviews i JOIN jobs j ON i.job_id = j.job_id
            WHERE i.talent_wallet = ? ORDER BY i.scheduled_date DESC""",
@@ -313,7 +360,7 @@ def get_interviews_for_talent(wallet: str) -> pd.DataFrame:
 
 def get_interviews_for_employer(employer_wallet: str) -> pd.DataFrame:
     conn = get_connection()
-    df = pd.read_sql(
+    df = _safe_read_sql(
         """SELECT i.*, j.title as job_title, j.company, t.name as talent_name, t.role as talent_role
            FROM interviews i
            JOIN jobs j ON i.job_id = j.job_id
@@ -340,7 +387,7 @@ def insert_message(interview_id: int, sender_wallet: str, sender_role: str, mess
 
 def get_messages(interview_id: int) -> pd.DataFrame:
     conn = get_connection()
-    df = pd.read_sql(
+    df = _safe_read_sql(
         "SELECT * FROM messages WHERE interview_id=? ORDER BY sent_at ASC",
         conn, params=(interview_id,)
     )
@@ -370,7 +417,7 @@ def insert_hiring_record(row: dict) -> int:
 
 def get_hiring_history(employer_wallet: str) -> pd.DataFrame:
     conn = get_connection()
-    df = pd.read_sql(
+    df = _safe_read_sql(
         """SELECT h.*, t.name as talent_name, t.role as talent_role, t.rating as talent_rating
            FROM hiring_history h
            JOIN talents t ON h.talent_wallet = t.wallet_address
@@ -389,7 +436,7 @@ def rate_past_hire(hire_id: int, rating: float, feedback: str, talent_wallet: st
         (rating, feedback, str(date.today()), hire_id)
     )
     # Update talent's overall rating (rolling average)
-    existing = pd.read_sql("SELECT rating FROM talents WHERE wallet_address=?", conn, params=(talent_wallet,))
+    existing = _safe_read_sql("SELECT rating FROM talents WHERE wallet_address=?", conn, params=(talent_wallet,))
     if not existing.empty:
         old_r = float(existing["rating"].iloc[0])
         new_r = round((old_r + rating) / 2, 1)
@@ -418,7 +465,7 @@ def upsert_skill_test_result(talent_wallet: str, skill_name: str,
 
 def get_skill_test_results(talent_wallet: str) -> pd.DataFrame:
     conn = get_connection()
-    df = pd.read_sql(
+    df = _safe_read_sql(
         "SELECT * FROM skill_test_results WHERE talent_wallet=? ORDER BY taken_at DESC",
         conn, params=(talent_wallet,)
     )
@@ -430,8 +477,17 @@ def get_skill_test_results(talent_wallet: str) -> pd.DataFrame:
 
 def get_platform_stats() -> dict:
     conn = get_connection()
-    def _n(q): return int(pd.read_sql(q, conn).iloc[0, 0])
-    def _f(q): return float(pd.read_sql(q, conn).iloc[0, 0] or 0)
+    def _n(q):
+        try:
+            return int(_safe_read_sql(q, conn).iloc[0, 0])
+        except Exception:
+            return 0
+    def _f(q):
+        try:
+            v = _safe_read_sql(q, conn).iloc[0, 0]
+            return float(v or 0)
+        except Exception:
+            return 0.0
     stats = {
         "talents":      _n("SELECT COUNT(*) FROM talents"),
         "jobs":         _n("SELECT COUNT(*) FROM jobs"),

@@ -171,7 +171,7 @@ with col_sc:
             colorscale="Teal",
             showscale=True,
             colorbar=dict(
-                title=dict(text="Completion%", font=dict(color="#4a6a84", size=10)),
+                title="Completion%",
                 tickfont=dict(color="#4a6a84", size=9),
             ),
             line=dict(color="rgba(4,13,26,.5)", width=0.5)

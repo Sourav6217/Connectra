@@ -119,15 +119,33 @@ def stat_badge(icon: str, text: str) -> str:
 # PROGRESS BAR (HTML)
 # ══════════════════════════════════════════
 def html_bar(label: str, value: float, color_cls: str = "bar", show_val: bool = True) -> str:
+    """Return an HTML progress bar string with fully inlined styles (no CSS class dependency)."""
     val_disp = f"{value:.0f}%" if show_val else ""
-    text_col  = "#4de8b4" if color_cls == "bar" else "#f5c263" if "a" in color_cls else "#7ab8f5"
-    return f"""
-    <div style='margin-bottom:12px;'>
+    # Determine colors purely from color_cls hint
+    if color_cls == "bar":
+        bar_bg_color = "linear-gradient(90deg,#1D9E75,#4de8b4)"
+        text_col = "#4de8b4"
+    elif "a" in color_cls:
+        bar_bg_color = "linear-gradient(90deg,#EF9F27,#f5c263)"
+        text_col = "#f5c263"
+    elif "r" in color_cls:
+        bar_bg_color = "linear-gradient(90deg,#E24B4A,#f08080)"
+        text_col = "#f08080"
+    elif "b" in color_cls:
+        bar_bg_color = "linear-gradient(90deg,#378ADD,#7ab8f5)"
+        text_col = "#7ab8f5"
+    else:
+        bar_bg_color = "linear-gradient(90deg,#1D9E75,#4de8b4)"
+        text_col = "#4de8b4"
+    safe_val = min(max(float(value), 0), 100)
+    return f"""<div style='margin-bottom:12px;'>
       <div style='display:flex;justify-content:space-between;margin-bottom:4px;'>
         <div style='font-size:12px;color:#8ba8c4;'>{label}</div>
         <div style='font-size:12px;color:{text_col};font-weight:600;'>{val_disp}</div>
       </div>
-      <div class='bar-bg'><div class='{color_cls}' style='width:{value}%;'></div></div>
+      <div style='background:rgba(29,158,117,.08);border-radius:50px;height:6px;overflow:hidden;'>
+        <div style='background:{bar_bg_color};height:100%;border-radius:50px;width:{safe_val:.1f}%;'></div>
+      </div>
     </div>"""
 
 

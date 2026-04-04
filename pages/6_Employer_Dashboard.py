@@ -147,15 +147,18 @@ with tabs[0]:
         )
 
         if st.button("Schedule Interview", use_container_width=True, key="book_interview"):
-            iid = insert_interview(
-                talent_wallet=selected_talent["wallet_address"],
-                job_id=int(job_row["job_id"]),
-                employer_wallet=employer_wallet,
-                scheduled_date=str(interview_date),
-                scheduled_time=interview_time,
-                notes=interview_notes
-            )
-            st.success(f"Interview scheduled! ID #{iid}")
+            try:
+                iid = insert_interview(
+                    talent_wallet=selected_talent["wallet_address"],
+                    job_id=int(job_row["job_id"]),
+                    employer_wallet=employer_wallet,
+                    scheduled_date=str(interview_date),
+                    scheduled_time=interview_time,
+                    notes=interview_notes
+                )
+                st.success(f"Interview scheduled! ID #{iid}")
+            except Exception as e:
+                st.error(f"Could not schedule interview: {e}")
 
         st.markdown("</div>", unsafe_allow_html=True)
 
