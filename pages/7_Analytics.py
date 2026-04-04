@@ -182,10 +182,10 @@ with col_sc:
     fig4.update_layout(
         title=dict(text="Experience vs Rating (bubble = completion%)", font=dict(color="#8ba8c4",size=13)),
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        xaxis=dict(title=dict(text="Years Experience", font=dict(color="#4a6a84",size=11)),
+        xaxis=dict(title="Years Experience", titlefont=dict(color="#4a6a84",size=11),
                    tickfont=dict(color="#4a6a84",size=10),
                    gridcolor="rgba(255,255,255,.04)", zerolinecolor="rgba(0,0,0,0)"),
-        yaxis=dict(title=dict(text="Rating", font=dict(color="#4a6a84",size=11)),
+        yaxis=dict(title="Rating", titlefont=dict(color="#4a6a84",size=11),
                    tickfont=dict(color="#4a6a84",size=10),
                    gridcolor="rgba(255,255,255,.04)", zerolinecolor="rgba(0,0,0,0)"),
         margin=dict(l=0,r=60,t=40,b=20), height=280,
