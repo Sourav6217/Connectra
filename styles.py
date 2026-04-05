@@ -108,6 +108,7 @@ button[kind="header"] { display: none !important; }
 /* Native top header subtitle */
 [data-testid="stHeader"] {
   position: relative !important;
+  padding-left: 20px;
 }
 [data-testid="stHeader"]::after {
   content: "⬡ Connectra • Onchain • Talent Marketplace";
