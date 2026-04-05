@@ -25,10 +25,10 @@ st.markdown("""
     Every hire is transparent, every profile is portable.
   </div>
   <div style='display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px;position:relative;z-index:1;'>
-    <span class='stat-b'>🔐 Soulbound NFT Identity</span>
-    <span class='stat-b'>🤖 AI Match Scoring</span>
-    <span class='stat-b'>📊 Predictive Analytics</span>
-    <span class='stat-b'>⛓️ Polygon Testnet</span>
+    <span class='stat-b'>Soulbound NFT Identity</span>
+    <span class='stat-b'>AI Match Scoring</span>
+    <span class='stat-b'>Predictive Analytics</span>
+    <span class='stat-b'>Polygon Testnet</span>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -82,7 +82,7 @@ with col_t:
       </div>
     </div>
     """, unsafe_allow_html=True)
-    if st.button("🚀 Enter as Talent", use_container_width=True, key="btn_talent"):
+    if st.button("Enter as Talent", use_container_width=True, key="btn_talent"):
         st.session_state.user_role = "talent"
         st.session_state.prev_page = "home"
         st.session_state.current_page = "dashboard"
@@ -108,7 +108,7 @@ with col_e:
       </div>
     </div>
     """, unsafe_allow_html=True)
-    if st.button("🏢 Enter as Employer", use_container_width=True, key="btn_employer"):
+    if st.button("Enter as Employer", use_container_width=True, key="btn_employer"):
         st.session_state.user_role = "employer"
         st.session_state.prev_page = "home"
         st.session_state.current_page = "postjob"

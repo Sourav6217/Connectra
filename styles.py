@@ -22,6 +22,12 @@ html, body, [data-testid="stAppViewContainer"] {
 [data-testid="collapsedControl"],
 button[kind="header"] { display: none !important; }
 
+/* Sidebar header strip (top fixed area above content) */
+[data-testid="stSidebarHeader"] {
+  height: 124px !important;
+  min-height: 124px !important;
+}
+
 /* ── SIDEBAR: brand pinned, content scrollable ── */
 [data-testid="stSidebar"] > div:first-child {
   display: flex !important;
@@ -95,12 +101,27 @@ button[kind="header"] { display: none !important; }
 [data-testid="stSidebarNav"] a[aria-current="page"]::after { opacity: 1; }
 
 /* ── MAIN CONTENT PADDING ───────────────── */
-.main .block-container { padding: 28px 36px 60px !important; max-width: 100% !important; }
+.main .block-container { padding: 8px 36px 60px !important; max-width: 100% !important; }
+
+/* Keep Streamlit top header layer visible */
+
+section[data-testid="stMain"],
+[data-testid="stAppViewContainer"] .main {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+section[data-testid="stMain"] > div,
+[data-testid="stMainBlockContainer"],
+[data-testid="stAppViewContainer"] .main .block-container {
+  padding-top: 28px !important;
+  margin-top: 0 !important;
+}
 
 /* ── TYPOGRAPHY ──────────────────────────── */
 .s-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 4px; }
 .s-sub   { font-size: 13px; color: #4a6a84; margin-bottom: 18px; }
-.hero-title { font-family: 'Syne', sans-serif; font-size: clamp(28px,4vw,48px); font-weight: 800; color: #fff; line-height: 1.18; margin-bottom: 16px; }
+.hero-title { font-family: 'Syne', sans-serif; font-size: clamp(22px,3.2vw,38px); font-weight: 800; color: #fff; line-height: 1.18; margin-bottom: 16px; }
 .hero-sub   { font-size: 15px; color: #4a6a84; line-height: 1.75; max-width: 560px; margin-bottom: 28px; }
 .g { background: linear-gradient(90deg,#1D9E75,#4de8b4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
@@ -397,22 +418,22 @@ div:has(> button[key="_back_btn"]) .stButton > button,
   left: 0;
   z-index: 9999;
   width: 280px;
-  height: 62px;
-  background: #030b16;
-  border-bottom: 1px solid rgba(29,158,117,.18);
+  height: 124px;
+  background: transparent;
+  border-bottom: none;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 18px;
+  justify-content: center;
+  padding: 0;
   pointer-events: none;
-  box-shadow: 0 2px 12px rgba(0,0,0,.35);
+  box-shadow: none;
 }
 #connectra-top-logo img {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 104px;
+  height: 104px;
+  border-radius: 14px;
   object-fit: cover;
-  box-shadow: 0 0 12px rgba(77,232,180,.28);
+  box-shadow: 0 0 20px rgba(77,232,180,.32);
   flex-shrink: 0;
 }
 #connectra-top-logo .logo-text {
@@ -429,8 +450,14 @@ div:has(> button[key="_back_btn"]) .stButton > button,
   color: #1D9E75;
   letter-spacing: .1em;
 }
-/* Push main content down to account for fixed logo bar */
-.main .block-container { padding-top: 24px !important; }
+/* Fine-tuned top gap for all pages */
+.main .block-container { padding-top: 0 !important; }
+
+/* Remove extra top margin on first rendered block */
+[data-testid="stMain"] [data-testid="stMainBlockContainer"] > div:first-child {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
 
 /* ── Mode slider toggle ──────────────────────────────── */
 .mode-slider-wrap {
