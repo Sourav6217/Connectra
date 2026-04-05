@@ -110,7 +110,9 @@ button[kind="header"] { display: none !important; }
 /* Add "Connectra" in center */
 [data-testid="stHeader"]::after {
   content: "Connectra";
-  
+  position: absolute;
+  left: 50%;
+  top: 50%;
   
 }
 
