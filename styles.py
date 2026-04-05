@@ -105,16 +105,29 @@ button[kind="header"] { display: none !important; }
 
 /* Keep Streamlit top header layer visible */
 [data-testid="stHeader"] {
-  position: fixed;
+  position: fixed !important;
+  top: 0;
+  left: 0 !important;   /* force absolute left */
+  right: 0;
+  width: 100vw !important;
+  z-index: 999;
 }
-/* Add "Connectra" in center */
 [data-testid="stHeader"]::after {
-  content: "Connectra";
+  content: "⬡ Connectra • Onchain • Talent Marketplace";
+
   position: absolute;
-  left: 0%;
-  top: 50%;
-  
+  left: 50%;
+  transform: translateX(-50%);
+
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  color: rgba(200,216,232,0.7);
+
+  white-space: nowrap;
+  pointer-events: none;
 }
+
 
 
 section[data-testid="stMain"],
