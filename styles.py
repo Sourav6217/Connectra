@@ -124,7 +124,7 @@ button[kind="header"] { display: none !important; }
   white-space: nowrap;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 9px) {
   [data-testid="stHeader"]::after {
     font-size: 11px;
     letter-spacing: .08em;
