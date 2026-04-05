@@ -109,6 +109,14 @@ button[kind="header"] { display: none !important; }
 /* Native top header subtitle */
 [data-testid="stHeader"] {
   position: relative !important;
+  top: 0;
+  left: 0;
+  width: 100vw !important;   /* 🔥 FULL SCREEN WIDTH */
+  z-index: 999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;   /* center content */
 }
 
 /* Create centered title */
