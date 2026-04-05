@@ -105,7 +105,7 @@ button[kind="header"] { display: none !important; }
 
 /* Keep Streamlit top header layer visible */
 [data-testid="stHeader"] {
-  position: relative;
+  position: fixed;
 }
 /* Add "Connectra" in center */
 [data-testid="stHeader"]::after {
