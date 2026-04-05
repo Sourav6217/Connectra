@@ -105,6 +105,31 @@ button[kind="header"] { display: none !important; }
 
 /* Keep Streamlit top header layer visible */
 
+/* ── CENTERED NATIVE HEADER TEXT ───────────────── */
+
+[data-testid="stHeader"] {
+  position: relative;
+}
+
+/* Create centered title */
+[data-testid="stHeader"]::after {
+  content: "⬡ Connectra • Onchain • Talent Marketplace";
+  
+  position: absolute;
+  left: 60%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  
+  color: rgba(200,216,232,0.3);
+  
+  white-space: nowrap;
+  pointer-events: none;
+}
 
 
 section[data-testid="stMain"],
