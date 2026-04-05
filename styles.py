@@ -114,7 +114,7 @@ button[kind="header"] { display: none !important; }
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(0%, 0%);
+  transform: translate(-50%, -50%);
   font-family: 'DM Mono', monospace;
   font-size: 13px;
   font-weight: 500;
