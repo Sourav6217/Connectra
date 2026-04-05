@@ -105,6 +105,33 @@ button[kind="header"] { display: none !important; }
 
 /* Keep Streamlit top header layer visible */
 
+/* Native top header subtitle */
+[data-testid="stHeader"] {
+  position: relative !important;
+}
+[data-testid="stHeader"]::after {
+  content: "⬡ Connectra • Onchain • Talent Marketplace";
+  position: absolute;
+  left: 60%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  color: rgba(200,216,232,.38);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  [data-testid="stHeader"]::after {
+    font-size: 11px;
+    letter-spacing: .08em;
+    color: rgba(200,216,232,.32);
+  }
+}
+
 section[data-testid="stMain"],
 [data-testid="stAppViewContainer"] .main {
   padding-top: 0 !important;
