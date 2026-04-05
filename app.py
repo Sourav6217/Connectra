@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 import streamlit as st
 import sys
 import os
+import base64
 from pathlib import Path
 
 # ── Ensure project root is on Python path ─────────────────────────────────────
@@ -8,17 +10,36 @@ ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-st.set_page_config(
-    page_title="Connectra · Onchain Talent",
-    page_icon="⬡",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
 
-from styles import GLOBAL_CSS, SIDEBAR_BRAND
+
+from styles import GLOBAL_CSS
 from data.sqlite_db import init_db, seed_if_empty
 
 st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
+
+logo_path = ROOT / "connectra_logo.png"
+if logo_path.exists():
+        logo_b64 = base64.b64encode(logo_path.read_bytes()).decode("ascii")
+        st.markdown(
+                f"""
+                <style>
+                [data-testid="stSidebarHeader"] {{
+                    position: relative !important;
+                }}
+                [data-testid="stSidebarHeader"]::before {{
+                    content: "";
+                    position: absolute;
+                    inset: 0;
+                    background: center / 115px 115px no-repeat url('data:image/png;base64,{logo_b64}');
+                    filter: drop-shadow(0 0 20px rgba(77, 232, 180, 0.38));
+                    pointer-events: none;
+                }}
+                </style>
+                """,
+                unsafe_allow_html=True,
+        )
+
+
 
 # ── Bootstrap DB ───────────────────────────────────────────────────────────────
 init_db()
@@ -91,34 +112,80 @@ def render_nav_item(page_key: str, label: str, icon_key: str):
 # SIDEBAR
 # ══════════════════════════════════════════════════════════════════════
 with st.sidebar:
-    # ── Pinned brand ──────────────────────────────────────────────────
-    st.markdown(SIDEBAR_BRAND, unsafe_allow_html=True)
-
     # ── HOME (always visible) ─────────────────────────────────────────
     st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
     render_nav_item("home", "Home", "home")
 
-    # ── Role toggle ───────────────────────────────────────────────────
+    # ── Role slider toggle ────────────────────────────────────────────
     st.markdown("""
 <div style='font-size:10px;color:#2a4a34;letter-spacing:.1em;
             text-transform:uppercase;padding:16px 14px 6px;'>Mode</div>
 """, unsafe_allow_html=True)
 
-    prev_role = st.session_state.user_role
-    role = st.radio(
-        "", ["Talent", "Employer"], horizontal=True,
-        index=0 if st.session_state.user_role == "talent" else 1,
-        label_visibility="collapsed",
-        key="role_radio",
-    )
-    new_role = role.lower()
-    if new_role != prev_role:
-        st.session_state.user_role = new_role
-        # Reset to role's default page on toggle
-        st.session_state.current_page = "dashboard" if new_role == "talent" else "postjob"
-        st.rerun()
+    _is_talent = st.session_state.user_role == "talent"
+    _thumb_class = "talent" if _is_talent else "employer"
+    _talent_active  = "active"   if _is_talent else "inactive"
+    _employer_active = "inactive" if _is_talent else "active"
 
-    st.markdown("<div style='height:6px;'></div>", unsafe_allow_html=True)
+    st.markdown(f"""
+<div class='mode-slider-wrap'>
+  <div class='mode-slider-track'>
+    <div class='mode-slider-thumb {_thumb_class}'></div>
+    <div class='mode-slider-option {_talent_active}'>
+      <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>
+      Talent
+    </div>
+    <div class='mode-slider-option {_employer_active}'>
+      <svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='7' width='20' height='14' rx='2'/><path d='M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16'/></svg>
+      Employer
+    </div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+    # Two invisible buttons that sit below — one per role
+    _col1, _col2 = st.columns(2)
+    with _col1:
+        if st.button("Talent", key="role_talent_btn", use_container_width=True, help="Switch to Talent mode"):
+            if st.session_state.user_role != "talent":
+                st.session_state.user_role = "talent"
+                st.session_state.current_page = "dashboard"
+                st.rerun()
+    with _col2:
+        if st.button("Employer", key="role_employer_btn", use_container_width=True, help="Switch to Employer mode"):
+            if st.session_state.user_role != "employer":
+                st.session_state.user_role = "employer"
+                st.session_state.current_page = "postjob"
+                st.rerun()
+
+    st.markdown("""
+<style>
+/* Hide the toggle-button labels — they're purely functional */
+[data-testid="stSidebar"] [data-testid="stColumns"] button {
+  opacity: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+  border: none !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  pointer-events: auto !important;
+  position: absolute;
+  width: 50%;
+}
+[data-testid="stSidebar"] [data-testid="stColumns"] button:first-child { left: 14px; }
+[data-testid="stSidebar"] [data-testid="stColumns"] button:last-child  { right: 14px; }
+[data-testid="stSidebar"] [data-testid="stColumns"] {
+  position: relative;
+  height: 0;
+  overflow: visible;
+  margin-top: -52px;   /* pull buttons up to overlap slider */
+  z-index: 10;
+}
+</style>
+""", unsafe_allow_html=True)
+
+    st.markdown("<div style='height:14px;'></div>", unsafe_allow_html=True)
 
     # ── Role-specific nav items ───────────────────────────────────────
     if st.session_state.user_role == "talent":
@@ -202,20 +269,20 @@ with st.sidebar:
 page = st.session_state.current_page
 
 if page == "home":
-    exec(open(ROOT / "pages" / "1_Home.py").read())
+    exec(open(ROOT / "pages" / "1_Home.py", encoding="utf-8").read())
 elif page == "profile":
-    exec(open(ROOT / "pages" / "2_Create_Profile.py").read())
+    exec(open(ROOT / "pages" / "2_Create_Profile.py", encoding="utf-8").read())
 elif page == "dashboard":
-    exec(open(ROOT / "pages" / "3_Talent_Dashboard.py").read())
+    exec(open(ROOT / "pages" / "3_Talent_Dashboard.py", encoding="utf-8").read())
 elif page == "market":
-    exec(open(ROOT / "pages" / "4_Marketplace.py").read())
+    exec(open(ROOT / "pages" / "4_Marketplace.py", encoding="utf-8").read())
 elif page == "postjob":
-    exec(open(ROOT / "pages" / "5_Post_Job.py").read())
+    exec(open(ROOT / "pages" / "5_Post_Job.py", encoding="utf-8").read())
 elif page == "employer":
-    exec(open(ROOT / "pages" / "6_Employer_Dashboard.py").read())
+    exec(open(ROOT / "pages" / "6_Employer_Dashboard.py", encoding="utf-8").read())
 elif page == "analytics":
-    exec(open(ROOT / "pages" / "7_Analytics.py").read())
+    exec(open(ROOT / "pages" / "7_Analytics.py", encoding="utf-8").read())
 elif page == "skilltest":
-    exec(open(ROOT / "pages" / "8_Skill_Tests.py").read())
+    exec(open(ROOT / "pages" / "8_Skill_Tests.py", encoding="utf-8").read())
 else:
-    exec(open(ROOT / "pages" / "1_Home.py").read())
+    exec(open(ROOT / "pages" / "1_Home.py", encoding="utf-8").read())

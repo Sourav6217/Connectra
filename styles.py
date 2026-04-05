@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 GLOBAL_CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
@@ -20,6 +21,12 @@ html, body, [data-testid="stAppViewContainer"] {
 [data-testid="stSidebarCollapseButton"],
 [data-testid="collapsedControl"],
 button[kind="header"] { display: none !important; }
+
+/* Sidebar header strip (top fixed area above content) */
+[data-testid="stSidebarHeader"] {
+  height: 124px !important;
+  min-height: 124px !important;
+}
 
 /* ── SIDEBAR: brand pinned, content scrollable ── */
 [data-testid="stSidebar"] > div:first-child {
@@ -94,12 +101,27 @@ button[kind="header"] { display: none !important; }
 [data-testid="stSidebarNav"] a[aria-current="page"]::after { opacity: 1; }
 
 /* ── MAIN CONTENT PADDING ───────────────── */
-.main .block-container { padding: 28px 36px 60px !important; max-width: 100% !important; }
+.main .block-container { padding: 8px 36px 60px !important; max-width: 100% !important; }
+
+/* Keep Streamlit top header layer visible */
+
+section[data-testid="stMain"],
+[data-testid="stAppViewContainer"] .main {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+section[data-testid="stMain"] > div,
+[data-testid="stMainBlockContainer"],
+[data-testid="stAppViewContainer"] .main .block-container {
+  padding-top: 28px !important;
+  margin-top: 0 !important;
+}
 
 /* ── TYPOGRAPHY ──────────────────────────── */
 .s-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 4px; }
 .s-sub   { font-size: 13px; color: #4a6a84; margin-bottom: 18px; }
-.hero-title { font-family: 'Syne', sans-serif; font-size: clamp(28px,4vw,48px); font-weight: 800; color: #fff; line-height: 1.18; margin-bottom: 16px; }
+.hero-title { font-family: 'Syne', sans-serif; font-size: clamp(22px,3.2vw,38px); font-weight: 800; color: #fff; line-height: 1.18; margin-bottom: 16px; }
 .hero-sub   { font-size: 15px; color: #4a6a84; line-height: 1.75; max-width: 560px; margin-bottom: 28px; }
 .g { background: linear-gradient(90deg,#1D9E75,#4de8b4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
@@ -388,6 +410,103 @@ div:has(> button[key="_back_btn"]) .stButton > button,
   color: #c8d8e8 !important;
   border-color: rgba(29,158,117,.4) !important;
 }
+
+/* ── Fixed top-left logo ─────────────────────────────── */
+#connectra-top-logo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 280px;
+  height: 124px;
+  background: transparent;
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  pointer-events: none;
+  box-shadow: none;
+}
+#connectra-top-logo img {
+  width: 104px;
+  height: 104px;
+  border-radius: 14px;
+  object-fit: cover;
+  box-shadow: 0 0 20px rgba(77,232,180,.32);
+  flex-shrink: 0;
+}
+#connectra-top-logo .logo-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  background: linear-gradient(90deg,#1D9E75,#4de8b4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+}
+#connectra-top-logo .logo-sub {
+  font-size: 9px;
+  color: #1D9E75;
+  letter-spacing: .1em;
+}
+/* Fine-tuned top gap for all pages */
+.main .block-container { padding-top: 0 !important; }
+
+/* Remove extra top margin on first rendered block */
+[data-testid="stMain"] [data-testid="stMainBlockContainer"] > div:first-child {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* ── Mode slider toggle ──────────────────────────────── */
+.mode-slider-wrap {
+  padding: 6px 14px 10px;
+}
+.mode-slider-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 40px;
+  background: rgba(4,13,26,.7);
+  border: 1px solid rgba(29,158,117,.2);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+}
+.mode-slider-thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  width: calc(50% - 4px);
+  background: linear-gradient(135deg, #1D9E75, #4de8b4);
+  border-radius: 9px;
+  transition: left 0.28s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 2px 10px rgba(29,158,117,.4);
+  z-index: 0;
+}
+.mode-slider-thumb.talent  { left: 3px; }
+.mode-slider-thumb.employer { left: calc(50% + 1px); }
+.mode-slider-option {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: .03em;
+  transition: color .2s;
+  height: 100%;
+}
+.mode-slider-option.active  { color: #030b16; }
+.mode-slider-option.inactive { color: #4a6a84; }
+
 </style>
 """
 
@@ -395,21 +514,7 @@ div:has(> button[key="_back_btn"]) .stButton > button,
 NAV_CSS = ""   # now merged into GLOBAL_CSS above
 
 SIDEBAR_BRAND = """
-<div style='padding:20px 16px 14px;border-bottom:1px solid rgba(29,158,117,.12);
-            background:#030b16;'>
-  <div style='display:flex;align-items:center;gap:10px;'>
-    <div style='width:34px;height:34px;background:linear-gradient(135deg,#1D9E75,#4de8b4);
-                border-radius:9px;display:flex;align-items:center;justify-content:center;
-                font-size:16px;color:#030b16;font-weight:800;font-family:Syne,sans-serif;flex-shrink:0;'>⬡</div>
-    <div>
-      <div style='font-family:Syne,sans-serif;font-size:16px;font-weight:800;
-                  background:linear-gradient(90deg,#1D9E75,#4de8b4);
-                  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-                  line-height:1.1;'>Connectra</div>
-      <div style='font-size:10px;color:#1D9E75;letter-spacing:.08em;'>ONCHAIN TALENT</div>
-    </div>
-  </div>
-</div>
+<div style='height:62px;flex-shrink:0;background:#030b16;border-bottom:1px solid rgba(29,158,117,.18);'></div>
 """
 
 

@@ -47,7 +47,7 @@ step = st.session_state.wiz_step
 # ════════════════════════════════════════════════
 st.markdown("""
 <div class='anim-up' style='margin-bottom:8px;'>
-  <div class='s-title' style='font-size:26px;'>✨ Create Your Onchain Profile</div>
+  <div class='s-title' style='font-size:26px;'>Create Your Onchain Profile</div>
   <div class='s-sub'>4 steps to mint your Soulbound NFT identity on Polygon</div>
 </div>
 """, unsafe_allow_html=True)
