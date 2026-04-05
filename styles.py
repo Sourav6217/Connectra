@@ -112,9 +112,9 @@ button[kind="header"] { display: none !important; }
 [data-testid="stHeader"]::after {
   content: "⬡ Connectra • Onchain • Talent Marketplace";
   position: absolute;
-  left: 45%;
+  left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(0%, -50%);
   font-family: 'DM Mono', monospace;
   font-size: 13px;
   font-weight: 500;
