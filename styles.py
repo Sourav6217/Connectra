@@ -106,9 +106,9 @@ button[kind="header"] { display: none !important; }
 /* Keep Streamlit top header layer visible */
 
 /* ── CENTERED NATIVE HEADER TEXT ───────────────── */
-
+/* Native top header subtitle */
 [data-testid="stHeader"] {
-  position: relative;
+  position: relative !important;
 }
 
 /* Create centered title */
