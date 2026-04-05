@@ -111,7 +111,7 @@ button[kind="header"] { display: none !important; }
 [data-testid="stHeader"]::after {
   content: "Connectra";
   position: absolute;
-  left: 50%;
+  left: 0%;
   top: 50%;
   
 }
