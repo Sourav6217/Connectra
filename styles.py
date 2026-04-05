@@ -113,7 +113,7 @@ button[kind="header"] { display: none !important; }
   content: "⬡ Connectra • Onchain • Talent Marketplace";
 
   position: absolute;
-  left: 50%;
+  left: 55%;
   transform: translateX(-50%);
 
   font-family: 'DM Mono', monospace;
