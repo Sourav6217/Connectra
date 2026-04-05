@@ -104,19 +104,20 @@ button[kind="header"] { display: none !important; }
 .main .block-container { padding: 8px 36px 60px !important; max-width: 100% !important; }
 
 /* Keep Streamlit top header layer visible */
+
 [data-testid="stHeader"] {
-  position: fixed !important;
-  
+  position: fixed !important; 
 }
+
 [data-testid="stHeader"]::after {
   content: "⬡ Connectra • Onchain • Talent Marketplace";
 
   position: absolute;
-  left: 60%;
+  left: 55%;
   transform: translateX(-50%);
 
   font-family: 'DM Mono', monospace;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.10em;
   color: rgba(200,216,232,0.3);
