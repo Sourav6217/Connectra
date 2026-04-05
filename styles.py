@@ -104,6 +104,16 @@ button[kind="header"] { display: none !important; }
 .main .block-container { padding: 8px 36px 60px !important; max-width: 100% !important; }
 
 /* Keep Streamlit top header layer visible */
+[data-testid="stHeader"] {
+  position: relative;
+}
+/* Add "Connectra" in center */
+[data-testid="stHeader"]::after {
+  content: "Connectra";
+  
+  
+}
+
 
 section[data-testid="stMain"],
 [data-testid="stAppViewContainer"] .main {
